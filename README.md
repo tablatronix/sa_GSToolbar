@@ -1,4 +1,4 @@
 sa_GSToolbar
 ============
 
-Front end administrive toolbar
+Front end administrive toolbar plugin for GetSimple CMS
