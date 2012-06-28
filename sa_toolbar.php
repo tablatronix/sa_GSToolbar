@@ -1,11 +1,6 @@
 <?php
 
 /*
-Added parse error catching regardless of error reporting level
-Fixed issue with backtracing object classes
-*/
-
-/*
 * @Plugin Name: sa_toolbar
 * @Description: Admin toolbar
 * @Version: 0.1
@@ -13,34 +8,51 @@ Fixed issue with backtracing object classes
 * @Author URI: http://tablatronix.com/getsimple-cms/sa-toolbar/
 */
 
-define('SATB_DEBUG',true); // sa dev plugin debug
-# define('GS_DEV',false); // global development constant
 
-$SA_TB_PLUGIN_ID = 'sa_toolbar';
-$SA_TB_PLUGINPATH = $SITEURL.'plugins/sa_toolbar/';
-$sa_url = 'http://tablatronix.com/getsimple-cms/sa-toolbar/';
+$SATB['PLUGIN_ID'] = "sa_toolbar";
+$SATB['PLUGIN_PATH'] = $SITEURL.'plugins/'.$SATB['PLUGIN_ID'].'/';
+$SATB['PLUGIN_URL'] = "http://tablatronix.com/getsimple-cms/sa-toolbar-plugin/";
+$SATB['DEBUG'] = false;
+$SATB['owner'] = '';
+
+define('SATB_DEBUG',$SATB['DEBUG']);
+# define('GS_DEV',false); // global development constant
 
 # get correct id for plugin
 $thisfile=basename(__FILE__, ".php");			// Plugin File
-$sa_pname = 	  'SA Toolbar';           	//Plugin name
-$sa_pversion =	'0.1'; 		       	      	//Plugin version
-$sa_pauthor = 	'Shawn Alverson';       	//Plugin author
-$sa_purl = 			$sa_url;									//author website
-$sa_pdesc =			'SA Toolbar';						 	//Plugin description
-$sa_ptype =			'';                       //page type - on which admin tab to display
-$sa_pfunc =			'';                       //main function (administration)
+$satb_pname = 	  'SA Toolbar';    	    	//Plugin name
+$satb_pversion =	'0.1'; 		       	     	//Plugin version
+$satb_pauthor = 	'Shawn Alverson';      	//Plugin author
+$satb_purl = 			$SATB['PLUGIN_URL'];		//author website
+$satb_pdesc =			'SA Toolbar';					 	//Plugin description
+$satb_ptype =			'';                 	  //page type - on which admin tab to display
+$satb_pfunc =			'';                     //main function (administration)
 	
 # register plugin
-register_plugin($thisfile,$sa_pname,$sa_pversion,$sa_pauthor,$sa_url,$sa_pdesc,$sa_ptype,$sa_pfunc);
+register_plugin($thisfile,$satb_pname,$satb_pversion,$satb_pauthor,$satb_purl,$satb_pdesc,$satb_ptype,$satb_pfunc);
 
-// INCLUDES
-require_once($SA_TB_PLUGIN_ID.'/inc/sa_common.php');
+function satb_debugLog_wrapper(){
+	satb_deeper_debuglog(func_get_args());
+}
 
 function satb_debugLog(){
-	_debuglog(func_get_args());
+	GLOBAL $debugLogFunc;
+	
+	// define your debug enviroment, put this somewhere global
+	// define('SATB_DEBUG',true);
+	
+	if(!defined('SATB_DEBUG') or SATB_DEBUG != true) return;
+	if(function_exists('_debugLog')){
+		$debugLogFunc = __FUNCTION__;
+		_debugLog($args = func_get_args());
+	} else {
+		$args = func_get_args();
+		$args = is_array($args) ? print_r($args,true) : $args;
+		debugLog($args);
+	}	
 }
   
-if(SATB_DEBUG==true){
+if(defined('SATB_DEBUG') and SATB_DEBUG == true){
   error_reporting(E_ALL);
   ini_set("display_errors", 1);
 }
@@ -51,13 +63,11 @@ if(sa_tb_user_is_admin()){
 	add_action('index-pretemplate', 'sa_init_i18n');
 }
 
-$owner = '';
-
 // asset queing
 // use header hook if older than 3.1
 if(floatval(GSVERSION) < 3.1){
 	add_action('header', 'sa_tb_executeheader');
-	$owner = "SA_tb_";
+	$SATB['owner'] = "SA_tb_";
 }  
 else{ sa_tb_executeheader(); }
 
@@ -66,16 +76,12 @@ else{ sa_tb_executeheader(); }
 
 function sa_init_i18n(){
 	global $LANG;
-	  satb_debuglog('i18mmerge active');
 		i18n_merge('anonymous_data') || i18n_merge('anonymous_data', 'en_US');
-
-		i18n_merge('i18n_search', substr($LANG,0,2));
-		i18n_merge('i18n_search', 'en');
 }
 
 function sa_toolbar(){
 	
-  GLOBAL $SA_TB_PLUGINPATH,$SITEURL,$LANG,$USR;
+  GLOBAL $SATB,$SITEURL,$LANG,$USR;
 	
 	$editpath = $SITEURL.'admin/edit.php?id=';
 	$pageslug = return_page_slug();
@@ -85,6 +91,9 @@ function sa_toolbar(){
 	$psidemenus = get_PluginMenus(); // hold plugin sidemenus
 	$ptabs = get_PluginTabs();	// hold plugin tabs
 	
+	satb_automerge(array_merge($psidemenus,$ptabs));
+	
+	// tabs
 	$tm = addMenu($tm,'pages','TAB_PAGES','admin/pages.php');
 	$tm = addMenu($tm,'files','TAB_FILES','admin/upload.php');
 	$tm = addMenu($tm,'theme','TAB_THEME','admin/theme.php');
@@ -98,9 +107,10 @@ function sa_toolbar(){
 	$tm = addMenu($tm,'settings','TAB_SETTINGS','admin/settings.php');
 	$tm = addMenu($tm,'logs','LOGS','admin/log.php');
 	
-	_debugLog($ptabs);
-	_debugLog($tm);
+	# satb_debugLog($ptabs);
+	# satb_debugLog($tm);
 	
+	// default sidemenus
 	$sm = addMenu($sm,'pages','SIDE_VIEW_PAGES','admin/pages.php');
 	$sm = addMenu($sm,'pages','SIDE_CREATE_NEW','admin/edit.php');
 	$sm = addMenu($sm,'pages','MENU_MANAGER','admin/menu-manager.php');
@@ -136,52 +146,47 @@ function sa_toolbar(){
 	<ul>
 	';
 	
-	// logo
-	$logo = '<li>
-	<ul class="satb_nav">
-		<li class="icon" title="GetSImple CMS ver. '.GSVERSION.'">
-		<a href=""><img src="'.$SA_TB_PLUGINPATH.'assets/img/gsicon.png"></a>
-			<ul>
-				<li><a href="">test</a></li>
-			</ul>
-		</li>
-	</ul>
-	';
-	
-	$logo  = '<li><ul class="satb_nav"><li class="icon"><a href="#"><img src="'.$SA_TB_PLUGINPATH.'assets/img/gsicon.png"></a><ul>';
-	$logo .= '<li class="menu"><a href="">GetSimple CMS</a></li>';
-	$logo .= '<li class="menu"><a href="">Forums</a></li>';
-	$logo .= '<li class="menu"><a href="">Wiki</a></li>';
+	// logo	
+	$logo  = '<li><ul class="satb_nav"><li class="menu icon"><a class="logo" title="GetSImple CMS ver. '.GSVERSION.'" href="#"><img src="'.$SATB['PLUGIN_PATH'].'assets/img/gsicon.png"></a><ul>';
+	$logo .= '<li class=""><a href="http://get-simple.info" target="'.$target.'">GetSimple CMS</a></li>';
+	$logo .= '<li class=""><a href="http://get-simple.info/forum/" target="'.$target.'">Forums<span class="iconright">&#9656;</span></a>';
+	$logo .= '<ul><li class=""><a href="http://get-simple.info/forum/search/new/" target="'.$target.'">New Posts</a></li>';
+	$logo .= '</ul></li>';
+	$logo .= '<li class=""><a href="http://get-simple.info/extend/" target="'.$target.'">Extend</a></li>';
+	$logo .= '<li class=""><a href="http://get-simple.info/wiki/" target="'.$target.'">Wiki</a></li>';
+	$logo .= '<li class=""><a href="http://code.google.com/p/get-simple-cms" target="'.$target.'">SVN</a></li>';
+	$logo .= '<li class=""><a href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'">About SA_toolbar</a></li>';
 	$logo .= '</ul></ul></li>';	
 	
 	// global buttons
-	$edit = '<li class="menu"><a href="'.$editpath.return_page_slug().'" target="_blank">'.satb_cleanStr(satb_geti18n('EDIT')).'</a></li>';
-	$new	= '<li class="menu"><a href="'.$editpath.'" target="_blank">+ '.satb_cleanStr(satb_geti18n('NEW_PAGE')).'</a></li>';
+	$edit = '<li class="menu"><a href="'.$editpath.return_page_slug().'" target="'.$target.'">'.satb_cleanStr(satb_geti18n('EDIT')).'</a></li>';
+	$new	= '<li class="menu"><a href="'.$editpath.'" target="'.$target.'">+ '.satb_cleanStr(satb_geti18n('NEW_PAGE')).'</a></li>';
 	$separator = '<li class="separator"></li>';
 	
 	// debug mode indicator
-	$debugicon = '<li class="icon" title="'.ucwords(strip_tags('DEBUG_MODE')).' ON"><img src="'.$SA_TB_PLUGINPATH.'assets/img/sa_tb_debugmode.png"></li>';	
+	$debugicon = '<li class="icon" title="'.ucwords(strip_tags('DEBUG_MODE')).' ON"><img src="'.$SATB['PLUGIN_PATH'].'assets/img/sa_tb_debugmode.png"></li>';	
 	
 	// welcome user
 	$sig  = '<ul class="satb_nav"><li class="menu"><a href="#">'.i18n_r('WELCOME').', <strong>'.$USR.'</strong></a><ul>';
-	$sig .= '<li class="menu"><a href="'.$logoutitem['func'].'">'.satb_cleanStr(satb_geti18n($logoutitem['title'])).'</a></li></li>';
-	$sig .= '<li class="menu"><a href="'.$profileitem['func'].'">'.satb_cleanStr(satb_geti18n($profileitem['title'])).'</a></li></li>';
-	$sig .= '</ul>';
+	$sig .= '<li class=""><a href="'.$logoutitem['func'].'">'.satb_cleanStr(satb_geti18n($logoutitem['title'])).'</a></li>';
+	$sig .= '<li class=""><a href="'.$profileitem['func'].'">'.satb_cleanStr(satb_geti18n($profileitem['title'])).'</a></li>';
+	$sig .= '</ul></li>';
 		
 	foreach($tm as $key=>$page){
 		// tabs
 		
 		// check if tab is plugin tab
+		// note: built in tabs all use the first level sidemenu item as the default action, all plugins should follow this, arghhh		
 		if( isset($ptabs[$key]) ){
 			$tablink = 'admin/load.php?id=' . sa_tb_array_index(sa_tb_array_index($ptabs[$key],0),'func');
 			$tablink .=  '&amp;' . sa_tb_array_index(sa_tb_array_index($ptabs[$key],0),'action');
+			$title_i18n = true;
 		} else {
-			// built in stuff all uses first level sidemenu as index for tabs, all plugins should follow this, arghhh!
 			$tablink = sa_tb_array_index(sa_tb_array_index($page,0),'func');
+			$title_i18n = false;
 		}
 		
-		# $tablink.= (isset($submenu['action']) ? '&amp;'.$submenu['action'] : '')
-		$menu.= '<li' . (isset($ptabs[$key])? ' class="plugin" ':'') . '><a href="'.$tablink.'" target="'.$target.'">'.satb_cleanStr(satb_geti18n($tm[$key][0]['title']));
+		$menu.= '<li' . (isset($ptabs[$key])? ' class="plugin" ':'') . '><a href="'.$tablink.'" target="'.$target.'">'.satb_cleanStr(satb_geti18n($tm[$key][0]['title'],$title_i18n));
 		$menu.= (count($page) > 0) ? '<span class="iconright">&#9656;</span></a><ul>' : '</a><ul>';
 		// default sidemenus
 		if(isset($sm[$key])){
@@ -193,7 +198,7 @@ function sa_toolbar(){
 		// plugin sidemenus
 		if(isset($psidemenus[$key])){
 			foreach($psidemenus[$key] as $submenu){
-				$title = satb_cleanStr(satb_geti18n($submenu['title']));				
+				$title = satb_cleanStr(satb_geti18n($submenu['title'],true));				
 				$menu.='<li class="plugin"><a href="admin/load.php?id='.$submenu['func'].(isset($submenu['action']) ? '&amp;'.$submenu['action'] : '').'" target="'.$target.'">'.$title.'</a></li>';
 			}
 		}
@@ -237,7 +242,7 @@ function sa_toolbar(){
 			
 				// add margin to body to push down content
 				bodytop = $('body').csspixels('margin-top');
-				$('body').css('margin-top', (bodytop+28)+'px');
+				$('body').css('margin-top', (bodytop+28)+'px'); //todo: make the height dynamic based on navbar css
 				
 				// move background
 				// $('body').css('background-position', '0px 28px');	
@@ -245,12 +250,6 @@ function sa_toolbar(){
 				// assign body z-index in case its auto
 				// console.log($('body').css('z-index'));
 				// $('body').css('z-index', 9998);	
-
-				
-				// move our toolbar to the top
-				// $('.navbar-fixed-top').css('margin-top', '28px');				
-			} else {
-				$('body').css('margin-top', '0px');
 			}
 
 		});
@@ -265,25 +264,52 @@ function sa_toolbar(){
 	
 }
 
-function satb_automerge_i18n(){
-	// loop plugins for i18n text {}
-	// index for single merge
-	// merge plugin lang files in string
-	
-}
-
 function satb_cleanStr($str){
 	return ucwords(strip_tags($str));
 }
 
-function satb_geti18n($str){
-	// todo make this a parser, and dynamically load i18n_merge for plugins
-		$str = str_replace('{','',$str);
-		$str = str_replace('}','',$str);
-		$str = i18n_r($str);		
-		$str = str_replace('{','',$str);
-		$str = str_replace('}','',$str);		
-		return $str;
+function satb_automerge($array){
+	global $LANG;
+	
+	// loop plugins for i18n text {}
+	// index unique for single merge
+	// merge plugin lang files in string for posible lang combinations ( which is inefficient )
+	
+	$i18n_merges = array();
+		
+	foreach($array as $menu){
+		satb_debugLog($menu);
+		foreach($menu as $item){
+		satb_debugLog($item);			
+			if(preg_match('/^\{(.*)\/(.*)\}$/',$item['title'],$matches)){
+				satb_debugLog($item);			
+				if(isset($matches[1]) and isset($matches[2])){
+					$i18n_merges[] = trim($matches[1]);
+				}	
+			}	
+		}	
+	}
+
+	$i18n_merges = array_unique($i18n_merges);
+	
+	foreach($i18n_merges as $merge){
+		satb_debugLog('satb_automerge_custom',$merge); // the first argument is not in backtrace
+		# _debugLog("satb_automerge_default",$merge);
+		i18n_merge($merge, $LANG);		
+		i18n_merge($merge, substr($LANG,0,2));					
+		# i18n_merge($matches[1],'en_US');		
+	}
+	
+}
+
+function satb_geti18n($str,$intags=false){
+		if($intags == false){
+			return i18n_r($str);	
+		}
+		else if(preg_match('/^\{(.*\/.*)\}$/',$str,$matches) ){
+			return i18n_r($matches[1]);		
+		}	
+		else return $str;
 }
 
 function addMenu($array,$page,$title,$func){
@@ -329,22 +355,40 @@ function get_PluginMenus($page = null){
 	return $pluginsidemenus;
 }
 
-function bounceBack(){
-	return func_get_args();
-}
-
 function sa_tb_executeheader(){ // assigns assets to queue or header
-  GLOBAL $PLUGIN_ID, $SA_TB_PLUGINPATH, $owner;
+  GLOBAL $SATB;
 
   # debugLog("sa_dev_executeheader");
+
+	$PLUGIN_ID = $SATB['PLUGIN_ID'];
+	$PLUGIN_PATH = $SATB['PLUGIN_PATH'];
+	$owner = $SATB['owner'];
   
   $regscript = $owner."register_script";
   $regstyle  = $owner."register_style";
   $quescript = $owner."queue_script";
   $questyle  = $owner."queue_style";
 
-  $regstyle($PLUGIN_ID, $SA_TB_PLUGINPATH.'assets/css/sa_toolbar.css', '0.1', 'screen');
+  $regstyle($PLUGIN_ID, $PLUGIN_PATH.'assets/css/sa_toolbar.css', '0.1', 'screen');
   $questyle($PLUGIN_ID,GSFRONT);   
+}
+
+function SA_tb_register_style($handle, $src, $ver){echo '<link rel="stylesheet" href="'.$src.'" type="text/css" charset="utf-8" />'."\n";}
+function SA_tb_queue_style($name,$where){}
+function SA_tb_register_script($handle, $src, $ver, $in_footer=FALSE){echo '<script type="text/javascript" src="'.$src.'"></script>'."\n";}
+function SA_tb_queue_script($name,$where){}
+
+
+function sa_tb_user_is_admin(){
+  GLOBAL $USR;
+    
+  if (isset($USR) && $USR == get_cookie('GS_ADMIN_USERNAME')) {
+    return true;
+  }
+}
+
+function sa_tb_array_index($ary,$idx){ // handles all the isset error avoidance bullshit when checking an array for a key that might not exist
+  if( isset($ary) and isset($idx) and isset($ary[$idx]) ) return $ary[$idx];
 }
 
 ?>
