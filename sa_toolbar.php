@@ -3,7 +3,7 @@
 /*
 * @Plugin Name: sa_toolbar
 * @Description: Admin toolbar
-* @Version: 0.1
+* @Version: 0.1.1
 * @Author: Shawn Alverson
 * @Author URI: http://tablatronix.com/getsimple-cms/sa-toolbar/
 */
@@ -21,7 +21,7 @@ define('SATB_DEBUG',$SATB['DEBUG']);
 # get correct id for plugin
 $thisfile=basename(__FILE__, ".php");			// Plugin File
 $satb_pname = 	  'SA Toolbar';    	    	//Plugin name
-$satb_pversion =	'0.1'; 		       	     	//Plugin version
+$satb_pversion =	'0.1.1'; 		       	     	//Plugin version
 $satb_pauthor = 	'Shawn Alverson';      	//Plugin author
 $satb_purl = 			$SATB['PLUGIN_URL'];		//author website
 $satb_pdesc =			'SA Toolbar';					 	//Plugin description
@@ -168,8 +168,8 @@ function sa_toolbar(){
 	
 	// welcome user
 	$sig  = '<ul class="satb_nav"><li class="menu"><a href="#">'.i18n_r('WELCOME').', <strong>'.$USR.'</strong></a><ul>';
-	$sig .= '<li class=""><a href="'.$logoutitem['func'].'">'.satb_cleanStr(satb_geti18n($logoutitem['title'])).'</a></li>';
-	$sig .= '<li class=""><a href="'.$profileitem['func'].'">'.satb_cleanStr(satb_geti18n($profileitem['title'])).'</a></li>';
+	$sig .= '<li class=""><a href="'.$SITEURL.$logoutitem['func'].'">'.satb_cleanStr(satb_geti18n($logoutitem['title'])).'</a></li>';
+	$sig .= '<li class=""><a href="'.$SITEURL.$profileitem['func'].'">'.satb_cleanStr(satb_geti18n($profileitem['title'])).'</a></li>';
 	$sig .= '</ul></li>';
 		
 	foreach($tm as $key=>$page){
@@ -186,20 +186,20 @@ function sa_toolbar(){
 			$title_i18n = false;
 		}
 		
-		$menu.= '<li' . (isset($ptabs[$key])? ' class="plugin" ':'') . '><a href="'.$tablink.'" target="'.$target.'">'.satb_cleanStr(satb_geti18n($tm[$key][0]['title'],$title_i18n));
+		$menu.= '<li' . (isset($ptabs[$key])? ' class="plugin" ':'') . '><a href="'.$SITEURL.$tablink.'" target="'.$target.'">'.satb_cleanStr(satb_geti18n($tm[$key][0]['title'],$title_i18n));
 		$menu.= (count($page) > 0) ? '<span class="iconright">&#9656;</span></a><ul>' : '</a><ul>';
 		// default sidemenus
 		if(isset($sm[$key])){
 			foreach($sm[$key] as $submenu){
 				$title = satb_cleanStr(satb_geti18n($submenu['title']));	
-				$menu.='<li><a href="'.$submenu['func'].'" target="'.$target.'">'.$title.'</a></li>';
+				$menu.='<li><a href="'.$SITEURL.$submenu['func'].'" target="'.$target.'">'.$title.'</a></li>';
 			}
 		}
 		// plugin sidemenus
 		if(isset($psidemenus[$key])){
 			foreach($psidemenus[$key] as $submenu){
 				$title = satb_cleanStr(satb_geti18n($submenu['title'],true));				
-				$menu.='<li class="plugin"><a href="admin/load.php?id='.$submenu['func'].(isset($submenu['action']) ? '&amp;'.$submenu['action'] : '').'" target="'.$target.'">'.$title.'</a></li>';
+				$menu.='<li class="plugin"><a href="'.$SITEURL.'admin/load.php?id='.$submenu['func'].(isset($submenu['action']) ? '&amp;'.$submenu['action'] : '').'" target="'.$target.'">'.$title.'</a></li>';
 			}
 		}
 		
