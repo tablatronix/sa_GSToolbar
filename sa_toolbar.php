@@ -1,9 +1,13 @@
 <?php
 
 /*
+	fixed link targets for welcome links
+*/
+
+/*
 * @Plugin Name: sa_toolbar
 * @Description: Admin toolbar
-* @Version: 0.1.1
+* @Version: 0.1.3
 * @Author: Shawn Alverson
 * @Author URI: http://tablatronix.com/getsimple-cms/sa-toolbar/
 */
@@ -21,7 +25,7 @@ define('SATB_DEBUG',$SATB['DEBUG']);
 # get correct id for plugin
 $thisfile=basename(__FILE__, ".php");			// Plugin File
 $satb_pname = 	  'SA Toolbar';    	    	//Plugin name
-$satb_pversion =	'0.1.1'; 		       	     	//Plugin version
+$satb_pversion =	'0.1.3'; 		       	     	//Plugin version
 $satb_pauthor = 	'Shawn Alverson';      	//Plugin author
 $satb_purl = 			$SATB['PLUGIN_URL'];		//author website
 $satb_pdesc =			'SA Toolbar';					 	//Plugin description
@@ -168,8 +172,8 @@ function sa_toolbar(){
 	
 	// welcome user
 	$sig  = '<ul class="satb_nav"><li class="menu"><a href="#">'.i18n_r('WELCOME').', <strong>'.$USR.'</strong></a><ul>';
-	$sig .= '<li class=""><a href="'.$SITEURL.$logoutitem['func'].'">'.satb_cleanStr(satb_geti18n($logoutitem['title'])).'</a></li>';
-	$sig .= '<li class=""><a href="'.$SITEURL.$profileitem['func'].'">'.satb_cleanStr(satb_geti18n($profileitem['title'])).'</a></li>';
+	$sig .= '<li class=""><a href="'.$SITEURL.$logoutitem['func'].'" target="'.$target.'">'.satb_cleanStr(satb_geti18n($logoutitem['title'])).'</a></li>';
+	$sig .= '<li class=""><a href="'.$SITEURL.$profileitem['func'].'" target="'.$target.'">'.satb_cleanStr(satb_geti18n($profileitem['title'])).'</a></li>';
 	$sig .= '</ul></li>';
 		
 	foreach($tm as $key=>$page){
@@ -218,11 +222,12 @@ function sa_toolbar(){
 	if(isset($pageslug)) echo $edit;
 	echo $separator;	
 	echo '</ul>';
+
+	echo '<ul class="right">'.$sig.'</ul>';
 	
 	// debug indicator logic
 	if((defined('GSDEBUG') and GSDEBUG == 1)){
 		echo '<ul class="right">';
-		echo $sig;
 		echo $debugicon;
 		echo '</ul>';
 	}
