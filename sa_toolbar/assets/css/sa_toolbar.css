@@ -7,7 +7,7 @@
 	clear:none;
 	/* cursor:default;*/
 	/* didn't really know what the default for display should be*/
-	/*display:inline;*/
+	/* display:inline;*/
 	float:none;
 	font-family:Arial, Helvetica, sans-serif;
 	font-size:medium; 
@@ -48,9 +48,9 @@
 	background-color: #2D2D2D;
 	color:#CCC;
 	z-index:9999;
-	border-bottom:1px solid #444;
-	
-	text-shadow: #444 0 -1px 0;	
+	border-bottom:1px solid #1D1D1D;
+	text-shadow: #444 0 -1px 0;		
+	border-left: 1px solid black; 	/* bugfix chrome, keeps hover 1 pixel away from 0,0 or else it is activated on page load if any element is being hovered */
 }
 
 #sa_toolbar small{
@@ -93,7 +93,7 @@
 	color:#FFF;
 }
 
-#sa_toolbar li.menu {
+#sa_toolbar li.satb_menu {
 	margin:0;
 	padding:0;
 	font-family:arial;
@@ -104,7 +104,7 @@
 	text-shadow: #444 0 -1px 0;	
 }
 
-#sa_toolbar li.menu a {
+#sa_toolbar li.satb_menu a {
 	border-right:1px solid #111;
 	padding:0 8px;
 	height:28px;
@@ -116,7 +116,7 @@
 	text-shadow: #444 0 -1px 0;		
 }
 
-#sa_toolbar li.menu:hover {
+#sa_toolbar li.satb_menu:hover {
 	background-color:#222;
 	font-family:arial;
 	font-size:13px;
@@ -127,16 +127,16 @@
 	height:28px;
 }
 
-#sa_toolbar li.icon {
+#sa_toolbar li.satb_icon {
 	line-height:0;	
 }
 
-#sa_toolbar li.icon  img{
+#sa_toolbar li.satb_icon  img{
 	height:28px;
 	width:28px;
 }
 
-#sa_toolbar li.icon .logo{
+#sa_toolbar li.satb_icon .satb_logo{
 	padding:0;
 }
 

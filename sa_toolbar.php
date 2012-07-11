@@ -1,13 +1,15 @@
 <?php
 
 /*
-	fixed link targets for welcome links
+	fix for hovers popping up on load
+	fix for "debug_mode" i18n text
+	changed targets to new		
 */
 
 /*
 * @Plugin Name: sa_toolbar
 * @Description: Admin toolbar
-* @Version: 0.1.3
+* @Version: 0.1.4
 * @Author: Shawn Alverson
 * @Author URI: http://tablatronix.com/getsimple-cms/sa-toolbar/
 */
@@ -18,6 +20,8 @@ $SATB['PLUGIN_PATH'] = $SITEURL.'plugins/'.$SATB['PLUGIN_ID'].'/';
 $SATB['PLUGIN_URL'] = "http://tablatronix.com/getsimple-cms/sa-toolbar-plugin/";
 $SATB['DEBUG'] = false;
 $SATB['owner'] = '';
+$SATB['gsback'] = true;
+
 
 define('SATB_DEBUG',$SATB['DEBUG']);
 # define('GS_DEV',false); // global development constant
@@ -25,7 +29,7 @@ define('SATB_DEBUG',$SATB['DEBUG']);
 # get correct id for plugin
 $thisfile=basename(__FILE__, ".php");			// Plugin File
 $satb_pname = 	  'SA Toolbar';    	    	//Plugin name
-$satb_pversion =	'0.1.3'; 		       	     	//Plugin version
+$satb_pversion =	'0.1.4'; 		       	     	//Plugin version
 $satb_pauthor = 	'Shawn Alverson';      	//Plugin author
 $satb_purl = 			$SATB['PLUGIN_URL'];		//author website
 $satb_pdesc =			'SA Toolbar';					 	//Plugin description
@@ -65,6 +69,10 @@ if(defined('SATB_DEBUG') and SATB_DEBUG == true){
 if(sa_tb_user_is_admin()){
 	add_action('theme-footer', 'sa_toolbar');
 	add_action('index-pretemplate', 'sa_init_i18n');
+	if($SATB['gsback'] = true){
+		add_action('footer', 'sa_toolbar');
+		add_action('admin-pre-header', 'sa_init_i18n');
+	}	
 }
 
 // asset queing
@@ -88,7 +96,12 @@ function sa_toolbar(){
   GLOBAL $SATB,$SITEURL,$LANG,$USR;
 	
 	$editpath = $SITEURL.'admin/edit.php?id=';
-	$pageslug = return_page_slug();
+	
+	if(function_exists('return_page_slug')){
+		$pageslug = return_page_slug();
+	} else {
+		$pageslug = '';
+	}	
 	
 	$tm = array(); // holds tabs
 	$sm = array(); // holds submenus	
@@ -142,16 +155,16 @@ function sa_toolbar(){
 	// define menu parts
 
 	// link target
-	$target = 'gsadmin'; 
+	$target = '_blank'; 
 	
 	// init master admin menu
 	$menu = '<li><ul class="satb_nav">
-	<li class="menu"><a href="#">Admin &#9662;</a>
+	<li class="satb_menu"><a href="#">Admin &#9662;</a>
 	<ul>
 	';
 	
 	// logo	
-	$logo  = '<li><ul class="satb_nav"><li class="menu icon"><a class="logo" title="GetSImple CMS ver. '.GSVERSION.'" href="#"><img src="'.$SATB['PLUGIN_PATH'].'assets/img/gsicon.png"></a><ul>';
+	$logo  = '<li><ul class="satb_nav"><li class="satb_menu satb_icon"><a class="satb_logo" title="GetSImple CMS ver. '.GSVERSION.'" href="#"><img src="'.$SATB['PLUGIN_PATH'].'assets/img/gsicon.png"></a><ul>';
 	$logo .= '<li class=""><a href="http://get-simple.info" target="'.$target.'">GetSimple CMS</a></li>';
 	$logo .= '<li class=""><a href="http://get-simple.info/forum/" target="'.$target.'">Forums<span class="iconright">&#9656;</span></a>';
 	$logo .= '<ul><li class=""><a href="http://get-simple.info/forum/search/new/" target="'.$target.'">New Posts</a></li>';
@@ -163,15 +176,21 @@ function sa_toolbar(){
 	$logo .= '</ul></ul></li>';	
 	
 	// global buttons
-	$edit = '<li class="menu"><a href="'.$editpath.return_page_slug().'" target="'.$target.'">'.satb_cleanStr(satb_geti18n('EDIT')).'</a></li>';
-	$new	= '<li class="menu"><a href="'.$editpath.'" target="'.$target.'">+ '.satb_cleanStr(satb_geti18n('NEW_PAGE')).'</a></li>';
+	
+	// edit button
+	$edit = '';
+	if(function_exists('return_page_slug')){
+		$edit = '<li class="satb_menu"><a href="'.$editpath.return_page_slug().'" target="'.$target.'">'.satb_cleanStr(satb_geti18n('EDIT')).'</a></li>';
+	}
+	
+	$new	= '<li class="satb_menu"><a href="'.$editpath.'" target="'.$target.'">+ '.satb_cleanStr(satb_geti18n('NEW_PAGE')).'</a></li>';
 	$separator = '<li class="separator"></li>';
 	
 	// debug mode indicator
-	$debugicon = '<li class="icon" title="'.ucwords(strip_tags('DEBUG_MODE')).' ON"><img src="'.$SATB['PLUGIN_PATH'].'assets/img/sa_tb_debugmode.png"></li>';	
+	$debugicon = '<li class="satb_icon" title="'.ucwords(satb_cleanStr(satb_geti18n('DEBUG_MODE'))).' ON"><img src="'.$SATB['PLUGIN_PATH'].'assets/img/sa_tb_debugmode.png"></li>';	
 	
 	// welcome user
-	$sig  = '<ul class="satb_nav"><li class="menu"><a href="#">'.i18n_r('WELCOME').', <strong>'.$USR.'</strong></a><ul>';
+	$sig  = '<ul class="satb_nav"><li class="satb_menu"><a href="#">'.i18n_r('WELCOME').', <strong>'.$USR.'</strong></a><ul>';
 	$sig .= '<li class=""><a href="'.$SITEURL.$logoutitem['func'].'" target="'.$target.'">'.satb_cleanStr(satb_geti18n($logoutitem['title'])).'</a></li>';
 	$sig .= '<li class=""><a href="'.$SITEURL.$profileitem['func'].'" target="'.$target.'">'.satb_cleanStr(satb_geti18n($profileitem['title'])).'</a></li>';
 	$sig .= '</ul></li>';
@@ -213,7 +232,7 @@ function sa_toolbar(){
 	$menu.='</ul></li></ul>';
 	
 	echo '<div id="sa_toolbar">
-	<ul class="left">';
+	<ul class="">';
 	echo $logo;
 	echo $menu;
 	echo $separator;
@@ -239,7 +258,7 @@ function sa_toolbar(){
 	<script type="text/javascript">
 		$(document).ready(function() {
 
-			$('body').append($('#sa_toolbar'));
+			// $('body').append($('#sa_toolbar'));
 			
 			if ( $('#sa_toolbar').length > 0 ) {
 
@@ -375,7 +394,7 @@ function sa_tb_executeheader(){ // assigns assets to queue or header
   $questyle  = $owner."queue_style";
 
   $regstyle($PLUGIN_ID, $PLUGIN_PATH.'assets/css/sa_toolbar.css', '0.1', 'screen');
-  $questyle($PLUGIN_ID,GSFRONT);   
+  $questyle($PLUGIN_ID,GSBOTH);   
 }
 
 function SA_tb_register_style($handle, $src, $ver){echo '<link rel="stylesheet" href="'.$src.'" type="text/css" charset="utf-8" />'."\n";}
