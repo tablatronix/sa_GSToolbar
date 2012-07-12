@@ -95,7 +95,7 @@ function sa_toolbar(){
 	
   GLOBAL $SATB,$SITEURL,$LANG,$USR;
 	
-	$editpath = $SITEURL.'admin/edit.php?id=';
+	$editpath = $SITEURL.'admin/edit.php';
 	
 	if(function_exists('return_page_slug')){
 		$pageslug = return_page_slug();
@@ -180,7 +180,7 @@ function sa_toolbar(){
 	// edit button
 	$edit = '';
 	if(function_exists('return_page_slug')){
-		$edit = '<li class="satb_menu"><a href="'.$editpath.return_page_slug().'" target="'.$target.'">'.satb_cleanStr(satb_geti18n('EDIT')).'</a></li>';
+		$edit = '<li class="satb_menu"><a href="'.$editpath.'?id='.return_page_slug().'" target="'.$target.'">'.satb_cleanStr(satb_geti18n('EDIT')).'</a></li>';
 	}
 	
 	$new	= '<li class="satb_menu"><a href="'.$editpath.'" target="'.$target.'">+ '.satb_cleanStr(satb_geti18n('NEW_PAGE')).'</a></li>';
