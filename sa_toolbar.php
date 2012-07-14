@@ -1,6 +1,8 @@
 <?php
 
 /*
+	revs:
+	
 	fix for hovers popping up on load, chrome bug
 	fix for "debug_mode" i18n text
 	changed targets to new	
@@ -12,6 +14,7 @@
 	rudimentry hook and custom menu support
 
 	todo:
+	
 	cache menus on backend, so they are all available on the front end always
 	add static admin bar when logged out option, with login support
 	do something about session timing out on front end when doing nothing on back end, dev testing etc.
@@ -25,19 +28,24 @@
 * @Version: 0.1.5
 * @Author: Shawn Alverson
 * @Author URI: http://tablatronix.com/getsimple-cms/sa-toolbar/
+*
+* @hook callouts: satb_toolbar_disp
 */
 
-
+$SATB = array();
 $SATB['PLUGIN_ID'] = "sa_toolbar";
 $SATB['PLUGIN_PATH'] = $SITEURL.'plugins/'.$SATB['PLUGIN_ID'].'/';
 $SATB['PLUGIN_URL'] = "http://tablatronix.com/getsimple-cms/sa-toolbar-plugin/";
-$SATB['DEBUG'] = false;
 $SATB['owner'] = '';
 $SATB['gsback'] = true;
 
 
+// DEBUGGING GLOBAL
+// ----------------------
+$SATB['DEBUG'] = false;
+// ----------------------
+
 define('SATB_DEBUG',$SATB['DEBUG']);
-# define('GS_DEV',false); // global development constant
 
 # get correct id for plugin
 $thisfile=basename(__FILE__, ".php");			// Plugin File
@@ -52,22 +60,6 @@ $satb_pfunc =			'';                     //main function (administration)
 # register plugin
 register_plugin($thisfile,$satb_pname,$satb_pversion,$satb_pauthor,$satb_purl,$satb_pdesc,$satb_ptype,$satb_pfunc);
 
-function satb_debugLog(){
-	GLOBAL $debugLogFunc;
-	
-	// define your debug enviroment, put this somewhere global
-	// define('SATB_DEBUG',true);
-	
-	if(!defined('SATB_DEBUG') or SATB_DEBUG != true) return;
-	if(function_exists('_debugLog')){
-		$debugLogFunc = __FUNCTION__;
-		_debugLog($args = func_get_args());
-	} else {
-		$args = func_get_args();
-		$args = is_array($args) ? print_r($args,true) : $args;
-		debugLog($args);
-	}	
-}
   
 if(defined('SATB_DEBUG') and SATB_DEBUG == true){
   error_reporting(E_ALL);
@@ -100,10 +92,27 @@ if(sa_tb_user_is_admin()){
 }
 
 // FUNCTIONS
+// ----------------------------------------------------------------------------
+
+function satb_debugLog(){
+	GLOBAL $debugLogFunc;
+		
+	if(!defined('SATB_DEBUG') or SATB_DEBUG != true) return;
+	if(function_exists('_debugLog')){
+		$debugLogFunc = __FUNCTION__;
+		_debugLog($args = func_get_args());
+	} else {
+		$args = func_get_args();
+		$args = is_array($args) ? print_r($args,true) : $args;
+		debugLog($args);
+	}	
+}
+
 
 function sa_init_i18n(){
 	global $LANG;
-		i18n_merge('anonymous_data') || i18n_merge('anonymous_data', 'en_US');
+		// PRELOAD DEFAULT LANG FILES HERE
+		// i18n_merge('anonymous_data') || i18n_merge('anonymous_data', 'en_US'); 
 }
 
 function sa_toolbar(){
@@ -247,7 +256,7 @@ function sa_toolbar(){
 	foreach($tm as $key=>$page){
 		// loop tabs array
 		
-		$iscustomtab = sa_tb_array_index(sa_tb_array_index($page,0),'custom');
+		$iscustomtab = sa_tb_array_index(sa_tb_array_index($page,0),'iscustom');
 		
 		// check if tab is plugin tab
 		// picky note: built in tabs all use the first level sidemenu item as the default action, all plugins should follow this, arghhh		
@@ -267,23 +276,41 @@ function sa_toolbar(){
 			}			
 		}
 		
-		$menu.= '<li' . (isset($ptabs[$key])? ' class="plugin" ':'') . '><a href="'.$SITEURL.$tablink.'" target="'.$target.'">'.satb_cleanStr(satb_geti18n($tm[$key][0]['title'],$title_i18n));
-		$menu.= (count($page) > 0) ? '<span class="iconright">&#9656;</span></a><ul>' : '</a><ul>';
-
-		// default sidemenus
+		if($key != 'link'){
+			$menu.= '<li' . (isset($ptabs[$key])? ' class="plugin" ':'') . '><a href="'.$SITEURL.$tablink.'" target="'.$target.'">'.satb_cleanStr(satb_geti18n($tm[$key][0]['title'],$title_i18n));
+			$menu.= (count($page) > 0) ? '<span class="iconright">&#9656;</span></a><ul>' : '</a><ul>';
+		}
+		
+		// loop sidemenus for page
 		if(isset($sm[$key])){
+				
 			foreach($sm[$key] as $submenu){
-				if( (isset($submenu['isplugin']) and $submenu['isplugin'] == true) or $iscustomtab) {
+			
+				$iscustomsm = sa_tb_array_index($submenu,'iscustom');
+				$ispluginsm = sa_tb_array_index($submenu,'isplugin');			
+			
+				if( (isset($submenu['isplugin']) and $submenu['isplugin'] == true) or $iscustomtab or $iscustomsm) {
 					$title = satb_cleanStr(satb_geti18n($submenu['title'],true));				
-					$class = $iscustomtab ? 'custom' : 'plugin';
-					$menu.='<li class="'.$class.'"><a href="'.$SITEURL.'admin/load.php?id='.$submenu['func'].(isset($submenu['action']) ? '&amp;'.$submenu['action'] : '').'" target="'.$target.'">'.$title.'</a></li>';					
+					$class = $iscustomtab || $iscustomsm ? 'custom' : 'plugin';
+					
+					if($iscustomtab and $key == 'link'){
+						$menu.='<li class="'.$class.'"><a href="'.$SITEURL.'admin/load.php?id='.$submenu['func'].(isset($submenu['action']) ? '&amp;'.$submenu['action'] : '').'" target="'.$target.'">'.$title.'</a></li>';										
+					} else {
+						$menu.='<li class="'.$class.'"><a href="'.$SITEURL.'admin/load.php?id='.$submenu['func'].(isset($submenu['action']) ? '&amp;'.$submenu['action'] : '').'" target="'.$target.'">'.$title.'</a></li>';					
+					}	
 				} else {
 					$title = satb_cleanStr(satb_geti18n($submenu['title']));	
 					$menu.='<li><a href="'.$SITEURL.$submenu['func'].'" target="'.$target.'">'.$title.'</a></li>';
 			 }
 			}
 		}		
-		$menu.='</ul></li>';
+		
+		if($key == 'link'){
+			$menu.='</li>';
+		} else {
+			$menu.='</ul></li>';
+		}
+		
 	}
 	
 	$menu.='</ul></li></ul>';
@@ -409,7 +436,7 @@ function satb_update_tabs($tm){
 	// new tabs
 	foreach(array_diff($smkeys,$tmkeys) as $tab){
 		# $tm = sa_tb_addMenu($tm,$tab,$tab,'');
-		$tm[$tab][] = array('func'=>$tab,'title'=>$tab,'custom'=>true);
+		$tm[$tab][] = array('func'=>$tab,'title'=>$tab,'iscustom'=>true);
 	}
 
 	// empty tabs
@@ -502,12 +529,39 @@ function satb_is_frontend() {
         }
 }
 
+
+//	add_action('sa_toolbar_disp','satb_hook_test');
+
 function satb_hook_test(){
 	GLOBAL $SATB,$SATB_MENU_ADMIN,$SATB_MENU_STATIC;
 	if(SATB_DEBUG == false) return;
 	
-	$SATB_MENU_ADMIN['CUSTOM'][] = array('title'=>'my custom item','func'=>'index.php#sa_debug','isplugin'=>false);
+	// known issues / limitations
+	// If you do not specify isplugin or iscustom, your string will be i18n decoded and wrapped in {} at this time
+	
+	// To add a link to an existing sub menu, use the pages name or plugin name as the arrays key
+	$SATB_MENU_ADMIN['pages'][] = array('title'=>'my custom pages item','func'=>'#','iscustom'=>true);
+	$SATB_MENU_ADMIN['backups'][] = array('title'=>'my custom backup item','func'=>'#','iscustom'=>true);
+	
+	// To add a link to a new sub menu, use the arkey for the menu name eg. "custom"
+	$SATB_MENU_ADMIN['custom'][] = array('title'=>'my custom sub menu item','func'=>'#','iscustom'=>true);
+	
+	// TO add a single menu item link use 'link' as the page
+	$SATB_MENU_ADMIN['link'][] = array('title'=>'my custom menu item link','func'=>'#','iscustom'=>true);
+	
+	// To remove an entire menu, remove it from the array
 	unset($SATB_MENU_ADMIN['settings']); // remove settings entirely
+	
+	// To remove specific sub-menu items, you will have to loop through the array and remove items based on your criteria
+	// * menu items contain a 'file' attribute which can help identify a specific plugins submenus
+	
+	// To change the edit button
+	$SATB_MENU_STATIC['edit'] = array('title'=> 'Custom Edit','url'=>'javascript:alert(\'javacript example\');');
+	
+	// To change the new page button
+	$SATB_MENU_STATIC['new'] = array('title'=> 'Custom New','url'=>'admin/load.php?id=blog&create_post');
+	
+	// There is no way to add new top buttons yet, but its in the works.
 	
 	satb_debugLog($SATB_MENU_ADMIN);
 }

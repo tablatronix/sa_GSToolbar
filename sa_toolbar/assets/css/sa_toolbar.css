@@ -247,6 +247,10 @@ visibility:visible;
 	background-color:#EFF6FC !important;
 }
 
+#sa_toolbar .custom {
+	background-color:#F7EFFC !important;
+}
+
 #sa_toolbar .iconright {
 	float:right;
 	line-height:28px;
