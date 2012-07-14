@@ -1,15 +1,28 @@
 <?php
 
 /*
-	fix for hovers popping up on load
+	fix for hovers popping up on load, chrome bug
 	fix for "debug_mode" i18n text
-	changed targets to new		
+	changed targets to new	
+	remove pill bar on backend
+	added to css reset - display overrides ,list types , border radius
+	moved some links around to better match sidemenu orders.
+	changed link targets , frontend = open in new window, backend = open in same window
+	added some pure css icons, experimental
+	rudimentry hook and custom menu support
+
+	todo:
+	cache menus on backend, so they are all available on the front end always
+	add static admin bar when logged out option, with login support
+	do something about session timing out on front end when doing nothing on back end, dev testing etc.
+	blind logout
+	
 */
 
 /*
 * @Plugin Name: sa_toolbar
 * @Description: Admin toolbar
-* @Version: 0.1.4
+* @Version: 0.1.5
 * @Author: Shawn Alverson
 * @Author URI: http://tablatronix.com/getsimple-cms/sa-toolbar/
 */
@@ -29,7 +42,7 @@ define('SATB_DEBUG',$SATB['DEBUG']);
 # get correct id for plugin
 $thisfile=basename(__FILE__, ".php");			// Plugin File
 $satb_pname = 	  'SA Toolbar';    	    	//Plugin name
-$satb_pversion =	'0.1.4'; 		       	     	//Plugin version
+$satb_pversion =	'0.1.5'; 		       	     	//Plugin version
 $satb_pauthor = 	'Shawn Alverson';      	//Plugin author
 $satb_purl = 			$SATB['PLUGIN_URL'];		//author website
 $satb_pdesc =			'SA Toolbar';					 	//Plugin description
@@ -38,10 +51,6 @@ $satb_pfunc =			'';                     //main function (administration)
 	
 # register plugin
 register_plugin($thisfile,$satb_pname,$satb_pversion,$satb_pauthor,$satb_purl,$satb_pdesc,$satb_ptype,$satb_pfunc);
-
-function satb_debugLog_wrapper(){
-	satb_deeper_debuglog(func_get_args());
-}
 
 function satb_debugLog(){
 	GLOBAL $debugLogFunc;
@@ -67,22 +76,28 @@ if(defined('SATB_DEBUG') and SATB_DEBUG == true){
 
 // INIT
 if(sa_tb_user_is_admin()){
+	
+	$SATB_MENU_ADMIN = array(); // global admin menu
+	$SATB_MENU_STATIC = array(); // global toolbar menu
+	
 	add_action('theme-footer', 'sa_toolbar');
 	add_action('index-pretemplate', 'sa_init_i18n');
 	if($SATB['gsback'] = true){
 		add_action('footer', 'sa_toolbar');
 		add_action('admin-pre-header', 'sa_init_i18n');
 	}	
+
+	add_action('sa_toolbar_disp','satb_hook_test');
+	
+	// asset queing
+	// use header hook if older than 3.1
+	if(floatval(GSVERSION) < 3.1){
+		add_action('header', 'sa_tb_executeheader');
+		$SATB['owner'] = "SA_tb_";
+	}  
+	else{ sa_tb_executeheader(); }
+
 }
-
-// asset queing
-// use header hook if older than 3.1
-if(floatval(GSVERSION) < 3.1){
-	add_action('header', 'sa_tb_executeheader');
-	$SATB['owner'] = "SA_tb_";
-}  
-else{ sa_tb_executeheader(); }
-
 
 // FUNCTIONS
 
@@ -93,7 +108,9 @@ function sa_init_i18n(){
 
 function sa_toolbar(){
 	
-  GLOBAL $SATB,$SITEURL,$LANG,$USR;
+	// todo : refactor this a bit, whew
+	
+  GLOBAL $SATB,$SITEURL,$LANG,$USR,$SATB_MENU_ADMIN,$SATB_MENU_STATIC;
 	
 	$editpath = $SITEURL.'admin/edit.php';
 	
@@ -103,59 +120,62 @@ function sa_toolbar(){
 		$pageslug = '';
 	}	
 	
-	$tm = array(); // holds tabs
-	$sm = array(); // holds submenus	
-	$psidemenus = get_PluginMenus(); // hold plugin sidemenus
-	$ptabs = get_PluginTabs();	// hold plugin tabs
+	$tm = array(); // holds all tabs
+	$sm = array(); // holds all sidemenus	
 	
-	satb_automerge(array_merge($psidemenus,$ptabs));
-	
+	$ptabs = sa_tb_get_PluginTabs();	// hold plugin tabs
+		
 	// tabs
-	$tm = addMenu($tm,'pages','TAB_PAGES','admin/pages.php');
-	$tm = addMenu($tm,'files','TAB_FILES','admin/upload.php');
-	$tm = addMenu($tm,'theme','TAB_THEME','admin/theme.php');
-	$tm = addMenu($tm,'backups','TAB_BACKUPS','admin/backups.php');
-	$tm = addMenu($tm,'plugins','PLUGINS_NAV','admin/plugins.php');
+	$tm = sa_tb_addMenu($tm,'pages','TAB_PAGES','admin/pages.php');
+	$tm = sa_tb_addMenu($tm,'files','TAB_FILES','admin/upload.php');
+	$tm = sa_tb_addMenu($tm,'theme','TAB_THEME','admin/theme.php');
+	$tm = sa_tb_addMenu($tm,'backups','TAB_BACKUPS','admin/backups.php');
+	$tm = sa_tb_addMenu($tm,'plugins','PLUGINS_NAV','admin/plugins.php');
 
-	// merge plugin nav-tabs
-	$tm = array_merge($tm,$ptabs);
-	
-	$tm = addMenu($tm,'support','TAB_SUPPORT','admin/support.php');
-	$tm = addMenu($tm,'settings','TAB_SETTINGS','admin/settings.php');
-	$tm = addMenu($tm,'logs','LOGS','admin/log.php');
+	// merge in plugin nav-tabs
+	$tm = array_merge($tm,$ptabs);	
+		
+	$tm = sa_tb_addMenu($tm,'support','TAB_SUPPORT','admin/support.php'); // custom
+	$tm = sa_tb_addMenu($tm,'settings','TAB_SETTINGS','admin/settings.php'); // custom
+	$tm = sa_tb_addMenu($tm,'logs','LOGS','admin/log.php'); // custom
 	
 	# satb_debugLog($ptabs);
 	# satb_debugLog($tm);
 	
 	// default sidemenus
-	$sm = addMenu($sm,'pages','SIDE_VIEW_PAGES','admin/pages.php');
-	$sm = addMenu($sm,'pages','SIDE_CREATE_NEW','admin/edit.php');
-	$sm = addMenu($sm,'pages','MENU_MANAGER','admin/menu-manager.php');
-	$sm = addMenu($sm,'files','FILE_MANAGEMENT','admin/upload.php');
-	$sm = addMenu($sm,'theme','SIDE_CHOOSE_THEME','admin/theme.php');
-	$sm = addMenu($sm,'theme','SIDE_EDIT_THEME','admin/theme-edit.php');
-	$sm = addMenu($sm,'theme','SIDE_COMPONENTS','admin/components.php');
-	$sm = addMenu($sm,'theme','SIDE_VIEW_SITEMAP','../sitemap.xml');
-	$sm = addMenu($sm,'backups','SIDE_PAGE_BAK','admin/backups.php');
-	$sm = addMenu($sm,'backups','SIDE_WEB_ARCHIVES','admin/archive.php');
-	$sm = addMenu($sm,'plugins','SHOW_PLUGINS','admin/plugins.php');
-	$sm = addMenu($sm,'plugins','anonymous_data/ANONY_TITLE','admin/load.php?id=anonymous_data');
-	$sm = addMenu($sm,'plugins','GET_PLUGINS_LINK','http://get-simple.info/extend');
-	$sm = addMenu($sm,'support','SUPPORT','admin/support.php');
-	$sm = addMenu($sm,'support','WEB_HEALTH_CHECK','admin/health-check.php');
-	$sm = addMenu($sm,'settings','GENERAL_SETTINGS','admin/settings.php');
-	$sm = addMenu($sm,'settings','SIDE_USER_PROFILE','admin/settings.php#profile');
-	$sm = addMenu($sm,'settings','TAB_LOGOUT','admin/logout.php');
-	$sm = addMenu($sm,'logs','VIEW_FAILED_LOGIN','admin/log.php?log=failedlogins.log');
+	$sm = sa_tb_addMenu($sm,'pages','SIDE_VIEW_PAGES','admin/pages.php');
+	$sm = sa_tb_addMenu($sm,'pages','SIDE_CREATE_NEW','admin/edit.php');
+	$sm = sa_tb_addMenu($sm,'pages','MENU_MANAGER','admin/menu-manager.php');
+	$sm = sa_tb_addMenu($sm,'files','FILE_MANAGEMENT','admin/upload.php');
+	$sm = sa_tb_addMenu($sm,'theme','SIDE_CHOOSE_THEME','admin/theme.php');
+	$sm = sa_tb_addMenu($sm,'theme','SIDE_EDIT_THEME','admin/theme-edit.php');
+	$sm = sa_tb_addMenu($sm,'theme','SIDE_COMPONENTS','admin/components.php');
+	$sm = sa_tb_addMenu($sm,'theme','SIDE_VIEW_SITEMAP','../sitemap.xml');
+	$sm = sa_tb_addMenu($sm,'backups','SIDE_PAGE_BAK','admin/backups.php');
+	$sm = sa_tb_addMenu($sm,'backups','SIDE_WEB_ARCHIVES','admin/archive.php');
+	$sm = sa_tb_addMenu($sm,'plugins','SHOW_PLUGINS','admin/plugins.php');
+	// $sm = sa_tb_addMenu($sm,'plugins','anonymous_data/ANONY_TITLE','admin/load.php?id=anonymous_data'); // oops, forgot this was a plugin
+	$sm = sa_tb_addMenu($sm,'support','SUPPORT','admin/support.php');
+	$sm = sa_tb_addMenu($sm,'support','WEB_HEALTH_CHECK','admin/health-check.php');
+	$sm = sa_tb_addMenu($sm,'settings','GENERAL_SETTINGS','admin/settings.php');
+	$sm = sa_tb_addMenu($sm,'settings','SIDE_USER_PROFILE','admin/settings.php#profile');
+	$sm = sa_tb_addMenu($sm,'logs','VIEW_FAILED_LOGIN','admin/log.php?log=failedlogins.log'); // custom
 	
-	$logoutitem = $sm['settings'][2];
-	$profileitem = $sm['settings'][1];
-	
+	$sm = sa_tb_get_PluginMenus($sm); // add plugin sidemenus to core sidemenus
 
+	// these core sidemenus go at bottom
+	$sm = sa_tb_addMenu($sm,'plugins','GET_PLUGINS_LINK','http://get-simple.info/extend');
+	$sm = sa_tb_addMenu($sm,'settings','TAB_LOGOUT','admin/logout.php'); // logout for convienence
+
+	$logoutitem = $sm['settings'][count($sm['settings'])-1]; // logout is always last item
+	$profileitem = $sm['settings'][1];	
+	
+	satb_automerge(array_merge($sm,$ptabs)); // auto load language files for found lang tokens
+		
 	// define menu parts
 
 	// link target
-	$target = '_blank'; 
+	$target = satb_is_frontend() ? '_blank' : '_self'; 
 	
 	// init master admin menu
 	$menu = '<li><ul class="satb_nav">
@@ -164,7 +184,7 @@ function sa_toolbar(){
 	';
 	
 	// logo	
-	$logo  = '<li><ul class="satb_nav"><li class="satb_menu satb_icon"><a class="satb_logo" title="GetSImple CMS ver. '.GSVERSION.'" href="#"><img src="'.$SATB['PLUGIN_PATH'].'assets/img/gsicon.png"></a><ul>';
+	$logo  = '<li><ul class="satb_nav"><li class="satb_menu satb_icon"><a class="satb_logo" title="GetSImple CMS ver. '.GSVERSION.'" href="#"><img src="'.$SATB['PLUGIN_PATH'].'assets/img/gsicon.png"></a><ul id="satb_logo_sub">';
 	$logo .= '<li class=""><a href="http://get-simple.info" target="'.$target.'">GetSimple CMS</a></li>';
 	$logo .= '<li class=""><a href="http://get-simple.info/forum/" target="'.$target.'">Forums<span class="iconright">&#9656;</span></a>';
 	$logo .= '<ul><li class=""><a href="http://get-simple.info/forum/search/new/" target="'.$target.'">New Posts</a></li>';
@@ -172,18 +192,42 @@ function sa_toolbar(){
 	$logo .= '<li class=""><a href="http://get-simple.info/extend/" target="'.$target.'">Extend</a></li>';
 	$logo .= '<li class=""><a href="http://get-simple.info/wiki/" target="'.$target.'">Wiki</a></li>';
 	$logo .= '<li class=""><a href="http://code.google.com/p/get-simple-cms" target="'.$target.'">SVN</a></li>';
-	$logo .= '<li class=""><a href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'">About SA_toolbar</a></li>';
+	$logo .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon info"></i>About SA_toolbar</a></li>';
+	
+	// icon test
+	/*	
+	$test = '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon info"></i>Info Icon</a></li>';
+	$test .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon help"></i>Help Icon</a></li>';
+	$test .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon success"></i>Success Icon</a></li>';
+	$test .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon success-alt"></i>Success Alt Icon</a></li>';
+	$test .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon alert"></i>Alert Icon</a></li>';
+	$test .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon warning"></i>Warning Icon</a></li>';
+	$test .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon denied"></i>Denied Icon</a></li>';
+	$test .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon ribbon"></i>Ribbon Icon</a></li>';
+	*/
+	
 	$logo .= '</ul></ul></li>';	
 	
-	// global buttons
+	// DO HOOKS
+	$SATB_MENU_ADMIN = $sm; // assign to global
 	
+	$SATB_MENU_STATIC['new'] = array('title'=>satb_cleanStr(satb_geti18n('NEW_PAGE')),'url'=>$editpath);	
+	if(function_exists('return_page_slug')){	
+		$SATB_MENU_STATIC['edit'] = array('title'=>satb_cleanStr(satb_geti18n('EDIT')),'url'=>$editpath.'?id='.return_page_slug());	
+	}
+	
+	exec_action('sa_toolbar_disp'); // call hook		
+	
+	$sm = $SATB_MENU_ADMIN; // set back from global
+		
 	// edit button
 	$edit = '';
 	if(function_exists('return_page_slug')){
-		$edit = '<li class="satb_menu"><a href="'.$editpath.'?id='.return_page_slug().'" target="'.$target.'">'.satb_cleanStr(satb_geti18n('EDIT')).'</a></li>';
+		$edit = '<li class="satb_menu"><a href="'.$SATB_MENU_STATIC['edit']['url'].'" target="'.$target.'">'.$SATB_MENU_STATIC['edit']['title'].'</a></li>';
 	}
 	
-	$new	= '<li class="satb_menu"><a href="'.$editpath.'" target="'.$target.'">+ '.satb_cleanStr(satb_geti18n('NEW_PAGE')).'</a></li>';
+	$new	= '<li class="satb_menu"><a href="'.$SATB_MENU_STATIC['new']['url'].'" target="'.$target.'">+ '.$SATB_MENU_STATIC['new']['title'].'</a></li>';
+	
 	$separator = '<li class="separator"></li>';
 	
 	// debug mode indicator
@@ -191,41 +235,54 @@ function sa_toolbar(){
 	
 	// welcome user
 	$sig  = '<ul class="satb_nav"><li class="satb_menu"><a href="#">'.i18n_r('WELCOME').', <strong>'.$USR.'</strong></a><ul>';
-	$sig .= '<li class=""><a href="'.$SITEURL.$logoutitem['func'].'" target="'.$target.'">'.satb_cleanStr(satb_geti18n($logoutitem['title'])).'</a></li>';
 	$sig .= '<li class=""><a href="'.$SITEURL.$profileitem['func'].'" target="'.$target.'">'.satb_cleanStr(satb_geti18n($profileitem['title'])).'</a></li>';
+	$sig .= '<li class=""><a href="'.$SITEURL.$logoutitem['func'].'" target="'.$target.'"><i class="cssicon alert"></i>'.satb_cleanStr(satb_geti18n($logoutitem['title'])).'</a></li>';
 	$sig .= '</ul></li>';
 		
+	$tm = satb_update_tabs($tm); // handle any empty or new tabs
+
+	satb_debugLog('tabs array',$tm);
+	satb_debugLog('sidemenus array',$sm);
+	
 	foreach($tm as $key=>$page){
-		// tabs
+		// loop tabs array
+		
+		$iscustomtab = sa_tb_array_index(sa_tb_array_index($page,0),'custom');
 		
 		// check if tab is plugin tab
-		// note: built in tabs all use the first level sidemenu item as the default action, all plugins should follow this, arghhh		
+		// picky note: built in tabs all use the first level sidemenu item as the default action, all plugins should follow this, arghhh		
 		if( isset($ptabs[$key]) ){
+			// tab is plugin, so convert lang wrapped titles only and set func and action url parts
 			$tablink = 'admin/load.php?id=' . sa_tb_array_index(sa_tb_array_index($ptabs[$key],0),'func');
 			$tablink .=  '&amp;' . sa_tb_array_index(sa_tb_array_index($ptabs[$key],0),'action');
 			$title_i18n = true;
 		} else {
+			// tab is core
 			$tablink = sa_tb_array_index(sa_tb_array_index($page,0),'func');
-			$title_i18n = false;
+			// is tab custom
+			if($iscustomtab){
+				$title_i18n = true;
+			} else {
+				$title_i18n = false;
+			}			
 		}
 		
 		$menu.= '<li' . (isset($ptabs[$key])? ' class="plugin" ':'') . '><a href="'.$SITEURL.$tablink.'" target="'.$target.'">'.satb_cleanStr(satb_geti18n($tm[$key][0]['title'],$title_i18n));
 		$menu.= (count($page) > 0) ? '<span class="iconright">&#9656;</span></a><ul>' : '</a><ul>';
+
 		// default sidemenus
 		if(isset($sm[$key])){
 			foreach($sm[$key] as $submenu){
-				$title = satb_cleanStr(satb_geti18n($submenu['title']));	
-				$menu.='<li><a href="'.$SITEURL.$submenu['func'].'" target="'.$target.'">'.$title.'</a></li>';
+				if( (isset($submenu['isplugin']) and $submenu['isplugin'] == true) or $iscustomtab) {
+					$title = satb_cleanStr(satb_geti18n($submenu['title'],true));				
+					$class = $iscustomtab ? 'custom' : 'plugin';
+					$menu.='<li class="'.$class.'"><a href="'.$SITEURL.'admin/load.php?id='.$submenu['func'].(isset($submenu['action']) ? '&amp;'.$submenu['action'] : '').'" target="'.$target.'">'.$title.'</a></li>';					
+				} else {
+					$title = satb_cleanStr(satb_geti18n($submenu['title']));	
+					$menu.='<li><a href="'.$SITEURL.$submenu['func'].'" target="'.$target.'">'.$title.'</a></li>';
+			 }
 			}
-		}
-		// plugin sidemenus
-		if(isset($psidemenus[$key])){
-			foreach($psidemenus[$key] as $submenu){
-				$title = satb_cleanStr(satb_geti18n($submenu['title'],true));				
-				$menu.='<li class="plugin"><a href="'.$SITEURL.'admin/load.php?id='.$submenu['func'].(isset($submenu['action']) ? '&amp;'.$submenu['action'] : '').'" target="'.$target.'">'.$title.'</a></li>';
-			}
-		}
-		
+		}		
 		$menu.='</ul></li>';
 	}
 	
@@ -258,7 +315,8 @@ function sa_toolbar(){
 	<script type="text/javascript">
 		$(document).ready(function() {
 
-			// $('body').append($('#sa_toolbar'));
+			$('body').append($('#sa_toolbar')); // prevents inheriting styles from #footer
+			$('ul#pill').hide(); // hide backend header
 			
 			if ( $('#sa_toolbar').length > 0 ) {
 
@@ -302,11 +360,11 @@ function satb_automerge($array){
 	$i18n_merges = array();
 		
 	foreach($array as $menu){
-		satb_debugLog($menu);
+		# satb_debugLog($menu);
 		foreach($menu as $item){
-		satb_debugLog($item);			
+		# satb_debugLog($item);			
 			if(preg_match('/^\{(.*)\/(.*)\}$/',$item['title'],$matches)){
-				satb_debugLog($item);			
+				# satb_debugLog($item);			
 				if(isset($matches[1]) and isset($matches[2])){
 					$i18n_merges[] = trim($matches[1]);
 				}	
@@ -317,8 +375,7 @@ function satb_automerge($array){
 	$i18n_merges = array_unique($i18n_merges);
 	
 	foreach($i18n_merges as $merge){
-		satb_debugLog('satb_automerge_custom',$merge); // the first argument is not in backtrace
-		# _debugLog("satb_automerge_default",$merge);
+		satb_debugLog('satb_automerge_custom',$merge);
 		i18n_merge($merge, $LANG);		
 		i18n_merge($merge, substr($LANG,0,2));					
 		# i18n_merge($matches[1],'en_US');		
@@ -336,13 +393,34 @@ function satb_geti18n($str,$intags=false){
 		else return $str;
 }
 
-function addMenu($array,$page,$title,$func){
+function sa_tb_addMenu($array,$page,$title,$func){
 	$array[$page][] = array('func'=>$func,'title'=>$title);
 	return $array;
 }
 
 
-function get_PluginTabs(){
+function satb_update_tabs($tm){
+	// adds or removes tabs as needed
+	
+	GLOBAL $SATB_MENU_ADMIN;
+	$smkeys = array_keys($SATB_MENU_ADMIN);
+	$tmkeys = array_keys($tm);
+		
+	// new tabs
+	foreach(array_diff($smkeys,$tmkeys) as $tab){
+		# $tm = sa_tb_addMenu($tm,$tab,$tab,'');
+		$tm[$tab][] = array('func'=>$tab,'title'=>$tab,'custom'=>true);
+	}
+
+	// empty tabs
+	foreach(array_diff($tmkeys,$smkeys) as $tab){
+		unset($tm[$tab]);
+	}
+	
+	return $tm;	
+}
+
+function sa_tb_get_PluginTabs(){
 	global $plugins;	
   $sa_plugins = $plugins;
 	$plugintabs = array();
@@ -356,11 +434,11 @@ function get_PluginTabs(){
 	return $plugintabs;
 }
 
-function get_PluginMenus($page = null){
-	global $plugins,$tabs;
-	# satb_debuglog($plugins);
+function sa_tb_get_PluginMenus($pluginsidemenus = array(),$page = null){
+	global $plugins;
   $sa_plugins = $plugins;
-	$pluginsidemenus = array();
+
+	# satb_debuglog($sa_plugins);
 	
   foreach ($sa_plugins as $hook)	{
     if(substr($hook['hook'],-8,9) == '-sidebar'){
@@ -369,7 +447,7 @@ function get_PluginMenus($page = null){
 			if(isset($hook['args']) and isset($hook['args'][0]) and isset($hook['args'][1])){
 				$allowAll = true; // allow plugins that use their own callbacks instead of createSideMenu, even though it is a terrible idea
 				if($hook['function'] == 'createSideMenu' or $allowAll){
-					$pluginsidemenus[$tab][] = array('title'=>$hook['args'][1],'func'=>$hook['args'][0],'action'=> isset($hook['args'][2]) ? $hook['args'][2] : null );
+					$pluginsidemenus[$tab][] = array('title'=>$hook['args'][1],'func'=>$hook['args'][0],'action'=> isset($hook['args'][2]) ? $hook['args'][2] : null,'isplugin' => true,'file' => $hook['file'] );
 				}
 			}
 		}	
@@ -413,6 +491,25 @@ function sa_tb_user_is_admin(){
 
 function sa_tb_array_index($ary,$idx){ // handles all the isset error avoidance bullshit when checking an array for a key that might not exist
   if( isset($ary) and isset($idx) and isset($ary[$idx]) ) return $ary[$idx];
+}
+
+function satb_is_frontend() {
+  GLOBAL $base;
+        if(isset($base)) {
+                return true;
+        } else {
+                return false;
+        }
+}
+
+function satb_hook_test(){
+	GLOBAL $SATB,$SATB_MENU_ADMIN,$SATB_MENU_STATIC;
+	if(SATB_DEBUG == false) return;
+	
+	$SATB_MENU_ADMIN['CUSTOM'][] = array('title'=>'my custom item','func'=>'index.php#sa_debug','isplugin'=>false);
+	unset($SATB_MENU_ADMIN['settings']); // remove settings entirely
+	
+	satb_debugLog($SATB_MENU_ADMIN);
 }
 
 ?>

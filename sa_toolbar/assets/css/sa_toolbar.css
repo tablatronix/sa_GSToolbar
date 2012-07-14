@@ -6,8 +6,7 @@
 	bottom:auto;
 	clear:none;
 	/* cursor:default;*/
-	/* didn't really know what the default for display should be*/
-	/* display:inline;*/
+	display:inline;
 	float:none;
 	font-family:Arial, Helvetica, sans-serif;
 	font-size:medium; 
@@ -35,6 +34,9 @@
 	z-index:auto;
   color:white;
   text-shadow:none;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	border-radius: 0;	
 }
 
 
@@ -69,6 +71,7 @@
 	padding:0;
 	list-style:none;
 	line-height:28px;
+	display:list-item;
 }
 
 #sa_toolbar ul.left {
@@ -176,7 +179,7 @@ visibility:visible;
 	display: block;
 	margin: 0;
 	padding: 0;
-	width: 185px;
+	width: 200px; 
 	position: absolute;
 	top: 28px;
 	left: 0;
@@ -217,7 +220,7 @@ visibility:visible;
 }
 /* level 3+ list */
 #sa_toolbar .satb_nav ul ul {
-	left: 185px;
+	left: 200px;
 	top: -1px;
 }
 /* first and last child */
@@ -253,3 +256,298 @@ visibility:visible;
 	color:inherit;
 	font-size:20px;
 }
+
+/* css icons
+---------------------------------------------------------------------------
+--------------------------------------------------------------------------- */
+
+#sa_toolbar i {
+	margin-left:-3px;
+}
+
+#sa_toolbar i {
+	color:inherit;
+}
+
+#sa_toolbar .cssicon {
+    position:relative;
+		text-shadow: #444 0 -1px 0;		
+}
+
+#sa_toolbar .cssicon:before{
+    content:"";
+    position:absolute;
+    top:50%;
+    left:0;
+}
+
+
+#sa_toolbar .cssicon:after{
+    content:"";
+    position:absolute;
+    top:50%;
+    left:0;
+}		
+
+/* HELP
+------------------------------------------------------------------------------------------------------------------------------- */
+
+#sa_toolbar .help {
+    color:#2385BA;	
+}
+
+#sa_toolbar .help:before {
+    content:"?";
+    left:3px;
+    width:16px;
+    height:16px;
+    margin-top:-8px;
+    font-size:14px;
+    font-weight:bold;
+    line-height:15px;
+    text-align:center;
+    color:#fff;
+    background:#2385BA;
+		
+		/* css3 */
+    -webkit-border-radius:16px;
+    -moz-border-radius:16px;
+    border-radius:16px;
+		
+		-moz-box-shadow: 0px 1px 1px rgba(0, 0, 0, .3);
+		-webkit-box-shadow: 0px 1px 1px rgba(0, 0, 0, .3);
+		box-shadow: 0px 1px 1px rgba(0, 0, 0, .3);					
+}
+
+/* alert
+------------------------------------------------------------------------------------------------------------------------------- */
+
+#sa_toolbar .alert {
+    color:#C00000;	
+}
+
+#sa_toolbar .alert:before {
+    content:"!";
+    left:3px;
+    width:16px;
+    height:16px;
+    margin-top:-8px;
+    font-size:14px;
+    font-weight:bold;
+    line-height:15px;
+    text-align:center;
+    color:#fff;
+    background:#C00000;
+		
+		/* css3 */
+    -webkit-border-radius:16px;
+    -moz-border-radius:16px;
+    border-radius:16px;
+		
+		-moz-box-shadow: 0px 1px 1px rgba(0, 0, 0, .3);
+		-webkit-box-shadow: 0px 1px 1px rgba(0, 0, 0, .3);
+		box-shadow: 0px 1px 1px rgba(0, 0, 0, .3);					
+}
+
+/* INFO
+------------------------------------------------------------------------------------------------------------------------------- */
+
+#sa_toolbar .info {
+    color:#2385BA;	
+}
+
+#sa_toolbar .info:before {
+    content:"i";
+    left:3px;
+    width:16px;
+    height:16px;
+    margin-top:-8px;
+    font-size:14px;
+    font-weight:bold;
+    font-style:italic;
+    line-height:15px;
+    text-align:center;
+    color:#fff;
+    background:#2385BA;
+				
+		/* css3 */
+    -webkit-border-radius:16px;
+    -moz-border-radius:16px;
+    border-radius:16px;
+		
+		-moz-box-shadow: 0px 1px 1px rgba(0, 0, 0, .3);
+		-webkit-box-shadow: 0px 1px 1px rgba(0, 0, 0, .3);
+		box-shadow: 0px 1px 1px rgba(0, 0, 0, .3);					
+}
+
+/* RIBBON
+------------------------------------------------------------------------------------------------------------------------------- */
+
+#sa_toolbar .ribbon:before {
+    left:6px;
+    border-width:10px 5px 6px;
+    border-style:solid;
+    border-color:#13ACE7 #13ACE7 transparent;
+    margin:-8px 0 0;				
+		
+		-moz-box-shadow: 0px 2px 2px -1px rgba(0, 0, 0, .2);
+		-webkit-box-shadow: 0px 2px 2px -1px rgba(0, 0, 0, .2);
+		box-shadow: 0px 2px 2px -1px rgba(0, 0, 0, .2);	
+}
+
+/* WARNING
+------------------------------------------------------------------------------------------------------------------------------- */
+
+#sa_toolbar .warning:before {
+    content:"!";
+    z-index:2;
+    left:9px;
+    margin-top:-7px;
+    font-size:14px;
+    font-weight:bold;
+    color:#000;
+		text-shadow:none;
+}
+
+ #sa_toolbar .warning:after {
+    z-index:1;
+    border-width:0 11px 18px;
+    border-style:solid;
+    border-color:#F8D201 transparent;
+    margin-top:-10px;
+    background:transparent;
+		
+		-moz-box-shadow: 0px 3px 3px -2px rgba(0, 0, 0, .3);
+		-webkit-box-shadow: 0px 3px 3px -2px rgba(0, 0, 0, .3);
+		box-shadow: 0px 3px 3px -2px rgba(0, 0, 0, .3);					
+}
+
+/* DENIED
+------------------------------------------------------------------------------------------------------------------------------- */
+
+#sa_toolbar .denied {
+    color:#C00000;
+}
+
+#sa_toolbar .denied:before {
+    left:3px;
+    width:10px;
+    height:10px;
+    border:3px solid #C00000;
+    margin-top:-8px;
+    background:transparent;
+    /* css3 */
+    -webkit-border-radius:16px;
+    -moz-border-radius:16px;
+    border-radius:16px;
+		
+		-moz-box-shadow: 0px 1px 1px rgba(0, 0, 0, .3);
+		-webkit-box-shadow: 0px 1px 1px rgba(0, 0, 0, .3);
+		box-shadow: 0px 1px 1px rgba(0, 0, 0, .3);				
+}
+
+#sa_toolbar .denied:after {
+    left:6px;
+    width:11px;
+    height:3px;
+    margin-top:-2px;
+    background:#C00000;
+    /* css3 */
+    -webkit-transform:rotate(-45deg);
+    -moz-transform:rotate(-45deg);
+    -ms-transform:rotate(-45deg);
+    -o-transform:rotate(-45deg);
+    transform:rotate(-45deg);
+}
+
+/* SUCCESS
+------------------------------------------------------------------------------------------------------------------------------- */
+
+#sa_toolbar .success {
+    color:#7F913C;
+}
+
+#sa_toolbar .success:before {
+    left:3px;
+    width:16px;
+    height:16px;
+    margin-top:-8px;
+    background:#7F913C;
+		
+    /* css3 */
+    -webkit-border-radius:16px;
+    -moz-border-radius:16px;
+    border-radius:16px;
+		
+		-moz-box-shadow: 0px 1px 1px rgba(0, 0, 0, .3);
+		-webkit-box-shadow: 0px 1px 1px rgba(0, 0, 0, .3);
+		box-shadow: 0px 1px 1px rgba(0, 0, 0, .3);			
+}
+
+#sa_toolbar .success:after {
+    left:8px;
+    width:3px;
+    height:8px;
+    border-width:0 2px 2px 0;
+    border-style:solid;
+    border-color:#fff;
+    margin-top:-6px;
+    -webkit-transform:rotate(45deg);
+    -moz-transform:rotate(45deg);
+    -ms-transform:rotate(45deg);
+    -o-transform:rotate(45deg);
+    transform:rotate(45deg);
+}
+
+/* Alternative style */
+
+#sa_toolbar .success-alt {
+    color:#7F913C;
+}
+
+#sa_toolbar .success-alt:before {
+    left:6px;
+    width:5px;
+    height:12px;
+    border-width:0 5px 5px 0;
+    border-style:solid;
+    border-color:#7F913C;
+    margin-top:-11px;
+    -webkit-transform:rotate(45deg);
+    -moz-transform:rotate(45deg);
+    -ms-transform:rotate(45deg);
+    -o-transform:rotate(45deg);
+    transform:rotate(45deg);
+}
+
+#sa_toolbar .alert,
+#sa_toolbar .player,
+#sa_toolbar .headphones,
+#sa_toolbar .ribbon,
+#sa_toolbar .views,
+#sa_toolbar .location,
+#sa_toolbar .info,
+#sa_toolbar .help,
+#sa_toolbar .pie,
+#sa_toolbar .success,
+#sa_toolbar .success-alt,
+#sa_toolbar .warning,
+#sa_toolbar .denied {
+    padding-left:24px;
+    padding-right:0;
+		font-size:1em;
+		line-height:1.4em;
+}
+
+#sa_toolbar .info,
+#sa_toolbar .help {
+	font-family: Cambria, Georgia, sans-serif !important; 	
+}
+
+/* debugging show menu*/
+/*
+#sa_toolbar #satb_logo_sub {
+	visibility:visible;
+	opacity:1;
+}
+*/
