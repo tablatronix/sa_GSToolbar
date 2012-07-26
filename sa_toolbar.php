@@ -3,6 +3,8 @@
 /*
 	revs:
 	
+	Changed GS menu link targets to _blank
+	
 	fix for hovers popping up on load, chrome bug
 	fix for "debug_mode" i18n text
 	changed targets to new	
@@ -19,6 +21,7 @@
 	add static admin bar when logged out option, with login support
 	do something about session timing out on front end when doing nothing on back end, dev testing etc.
 	blind logout
+	icons line wrap text on IOS, why
 	
 */
 
@@ -185,6 +188,7 @@ function sa_toolbar(){
 
 	// link target
 	$target = satb_is_frontend() ? '_blank' : '_self'; 
+	$gstarget = '_blank'; 
 	
 	// init master admin menu
 	$menu = '<li><ul class="satb_nav">
@@ -194,14 +198,14 @@ function sa_toolbar(){
 	
 	// logo	
 	$logo  = '<li><ul class="satb_nav"><li class="satb_menu satb_icon"><a class="satb_logo" title="GetSImple CMS ver. '.GSVERSION.'" href="#"><img src="'.$SATB['PLUGIN_PATH'].'assets/img/gsicon.png"></a><ul id="satb_logo_sub">';
-	$logo .= '<li class=""><a href="http://get-simple.info" target="'.$target.'">GetSimple CMS</a></li>';
-	$logo .= '<li class=""><a href="http://get-simple.info/forum/" target="'.$target.'">Forums<span class="iconright">&#9656;</span></a>';
-	$logo .= '<ul><li class=""><a href="http://get-simple.info/forum/search/new/" target="'.$target.'">New Posts</a></li>';
+	$logo .= '<li class=""><a href="http://get-simple.info" target="'.$gstarget.'">GetSimple CMS</a></li>';
+	$logo .= '<li class=""><a href="http://get-simple.info/forum/" target="'.$gstarget.'">Forums<span class="iconright">&#9656;</span></a>';
+	$logo .= '<ul><li class=""><a href="http://get-simple.info/forum/search/new/" target="'.$gstarget.'">New Posts</a></li>';
 	$logo .= '</ul></li>';
-	$logo .= '<li class=""><a href="http://get-simple.info/extend/" target="'.$target.'">Extend</a></li>';
-	$logo .= '<li class=""><a href="http://get-simple.info/wiki/" target="'.$target.'">Wiki</a></li>';
-	$logo .= '<li class=""><a href="http://code.google.com/p/get-simple-cms" target="'.$target.'">SVN</a></li>';
-	$logo .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon info"></i>About SA_toolbar</a></li>';
+	$logo .= '<li class=""><a href="http://get-simple.info/extend/" target="'.$gstarget.'">Extend</a></li>';
+	$logo .= '<li class=""><a href="http://get-simple.info/wiki/" target="'.$gstarget.'">Wiki</a></li>';
+	$logo .= '<li class=""><a href="http://code.google.com/p/get-simple-cms" target="'.$gstarget.'">SVN</a></li>';
+	$logo .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$gstarget.'"><i class="cssicon info"></i>About SA_toolbar</a></li>';
 	
 	// icon test
 	/*	
