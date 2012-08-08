@@ -261,6 +261,62 @@ visibility:visible;
 	font-size:20px;
 }
 
+/* login */
+
+#satb_login_link {
+	width: 40px !important;
+	text-align: center !important;
+	font-weight: bold !important;
+}
+
+#satb_login_menu {
+	left:-180px !important;
+	padding:17px !important;
+	color:black !important;
+}
+
+#satb_login_menu  b{
+	color:#555 !important;
+}
+
+#sa_toolbar input.submit {
+  font: bold 13px Helvetica, Arial, sans-serif;
+  text-decoration: none;
+  padding: 7px 15px;
+  text-shadow: 0 1px 0 rgba(255,255,255,.5);
+  -webkit-transition: all .218s;
+  -moz-transition: all .218s;
+  -o-transition: all .218s;
+  transition: all .218s;
+  color: #333333;
+  background: #dddddd;
+  background: -webkit-gradient(linear,0% 40%,0% 70%,from(#eeeeee),to(#e1e1e1));
+  background: -moz-linear-gradient(linear,0% 40%,0% 70%,from(#eeeeee),to(#e1e1e1));
+  border: solid 1px #acacac;
+  border-radius: 2px;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  cursor:pointer;
+	-moz-box-shadow: rgba(0,0,0, 0.06) 0px 0px 3px;  
+	-webkit-box-shadow: rgba(0,0,0, 0.06) 0px 0px 3px;
+	box-shadow: rgba(0,0,0, 0.06) 0px 0px 3px;  
+}
+#sa_toolbar input.submit:focus, #sa_toolbar  input.submit:hover {
+	color: #111111;
+  background: #eeeeee;
+  background: -webkit-gradient(linear,0% 40%,0% 70%,from(#eeeeee),to(#dddddd));
+  background: -moz-linear-gradient(linear,0% 40%,0% 70%,from(#eeeeee),to(#dddddd));
+  border: solid 1px #aaaaaa;
+  -moz-box-shadow: rgba(0,0,0, 0.15) 0px 0px 4px;  
+	-webkit-box-shadow: rgba(0,0,0, 0.15) 0px 0px 4px;
+	box-shadow: rgba(0,0,0, 0.15) 0px 0px 4px;  
+}
+
+#sa_toolbar .satb_nav .tb_close:hover > a {
+	background-color: #9F0000 !important;
+	color:#FFF !important;
+}
+
 /* css icons
 ---------------------------------------------------------------------------
 --------------------------------------------------------------------------- */

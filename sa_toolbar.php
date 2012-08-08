@@ -3,37 +3,27 @@
 /*
 	revs:
 	
-	Changed GS menu link targets to _blank
-	
-	fix for hovers popping up on load, chrome bug
-	fix for "debug_mode" i18n text
-	changed targets to new	
-	remove pill bar on backend
-	added to css reset - display overrides ,list types , border radius
-	moved some links around to better match sidemenu orders.
-	changed link targets , frontend = open in new window, backend = open in same window
-	added some pure css icons, experimental
-	rudimentry hook and custom menu support
+	added login toolbar
 
 	todo:
 	
 	cache menus on backend, so they are all available on the front end always
-	add static admin bar when logged out option, with login support
 	do something about session timing out on front end when doing nothing on back end, dev testing etc.
-	blind logout
+	blind logout, using redirect for now.
 	icons line wrap text on IOS, why
-	
+
 */
 
 /*
 * @Plugin Name: sa_toolbar
 * @Description: Admin toolbar
-* @Version: 0.1.5
+* @Version: 0.1.6
 * @Author: Shawn Alverson
 * @Author URI: http://tablatronix.com/getsimple-cms/sa-toolbar/
 *
 * @hook callouts: satb_toolbar_disp
 */
+
 
 $SATB = array();
 $SATB['PLUGIN_ID'] = "sa_toolbar";
@@ -53,7 +43,7 @@ define('SATB_DEBUG',$SATB['DEBUG']);
 # get correct id for plugin
 $thisfile=basename(__FILE__, ".php");			// Plugin File
 $satb_pname = 	  'SA Toolbar';    	    	//Plugin name
-$satb_pversion =	'0.1.5'; 		       	     	//Plugin version
+$satb_pversion =	'0.1.6'; 		       	     	//Plugin version
 $satb_pauthor = 	'Shawn Alverson';      	//Plugin author
 $satb_purl = 			$SATB['PLUGIN_URL'];		//author website
 $satb_pdesc =			'SA Toolbar';					 	//Plugin description
@@ -70,7 +60,11 @@ if(defined('SATB_DEBUG') and SATB_DEBUG == true){
 }
 
 // INIT
+add_action('logout','satb_logout');
+
 if(sa_tb_user_is_admin()){
+
+	satb_setTbCookie();
 	
 	$SATB_MENU_ADMIN = array(); // global admin menu
 	$SATB_MENU_STATIC = array(); // global toolbar menu
@@ -92,10 +86,40 @@ if(sa_tb_user_is_admin()){
 	}  
 	else{ sa_tb_executeheader(); }
 
+} 
+else if (satb_checkTbCookie()){	
+	if(floatval(GSVERSION) < 3.1){
+		add_action('header', 'sa_tb_executeheader');
+		$SATB['owner'] = "SA_tb_";
+	}  
+	else{ sa_tb_executeheader(); }
+	
+	add_action('theme-footer', 'sa_toolbar',array(true));
 }
 
 // FUNCTIONS
 // ----------------------------------------------------------------------------
+
+function satb_logout(){
+	// On logout redirect to page before logout redirects to index
+	// requires get[toolbar'] presence
+	if(isset($_GET['toolbar']) and isset($_GET['close']))	satb_clearTbCookie();
+	if(isset($_GET['toolbar']) and isset($_SERVER['HTTP_REFERER'])) redirect($_SERVER['HTTP_REFERER']);
+}
+
+function satb_checkTbCookie(){
+	satb_debugLog(isset($_COOKIE['GS_ADMIN_TOOLBAR']) and $_COOKIE['GS_ADMIN_TOOLBAR'] == '1');	
+	return isset($_COOKIE['GS_ADMIN_TOOLBAR']) and $_COOKIE['GS_ADMIN_TOOLBAR'] == '1';
+}
+
+function satb_setTbCookie(){
+	setcookie('GS_ADMIN_TOOLBAR', 1, time() + 86400,'/');
+}
+
+function satb_clearTbCookie(){
+ 	setcookie('GS_ADMIN_TOOLBAR', 'null', time() - 3600,'/');	
+}
+
 
 function satb_debugLog(){
 	GLOBAL $debugLogFunc;
@@ -118,11 +142,61 @@ function sa_init_i18n(){
 		// i18n_merge('anonymous_data') || i18n_merge('anonymous_data', 'en_US'); 
 }
 
-function sa_toolbar(){
+function sa_toolbar($login=null){
 	
 	// todo : refactor this a bit, whew
 	
   GLOBAL $SATB,$SITEURL,$LANG,$USR,$SATB_MENU_ADMIN,$SATB_MENU_STATIC;
+
+	$gstarget = '_blank'; 
+
+	// logo	
+	$logo  = '<li><ul class="satb_nav"><li class="satb_menu satb_icon"><a class="satb_logo" title="GetSImple CMS ver. '.GSVERSION.'" href="#"><img src="'.$SATB['PLUGIN_PATH'].'assets/img/gsicon.png"></a><ul id="satb_logo_sub">';
+	$logo .= '<li class=""><a href="http://get-simple.info" target="'.$gstarget.'">GetSimple CMS</a></li>';
+	$logo .= '<li class=""><a href="http://get-simple.info/forum/" target="'.$gstarget.'">Forums<span class="iconright">&#9656;</span></a>';
+	$logo .= '<ul><li class=""><a href="http://get-simple.info/forum/search/new/" target="'.$gstarget.'">New Posts</a></li>';
+	$logo .= '</ul></li>';
+	$logo .= '<li class=""><a href="http://get-simple.info/extend/" target="'.$gstarget.'">Extend</a></li>';
+	$logo .= '<li class=""><a href="http://get-simple.info/wiki/" target="'.$gstarget.'">Wiki</a></li>';
+	$logo .= '<li class=""><a href="http://code.google.com/p/get-simple-cms" target="'.$gstarget.'">SVN</a></li>';
+	$logo .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$gstarget.'"><i class="cssicon info"></i>About SA_toolbar</a></li>';
+
+	// icon test
+	/*	
+	$test = '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon info"></i>Info Icon</a></li>';
+	$test .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon help"></i>Help Icon</a></li>';
+	$test .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon success"></i>Success Icon</a></li>';
+	$test .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon success-alt"></i>Success Alt Icon</a></li>';
+	$test .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon alert"></i>Alert Icon</a></li>';
+	$test .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon warning"></i>Warning Icon</a></li>';
+	$test .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon denied"></i>Denied Icon</a></li>';
+	$test .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon ribbon"></i>Ribbon Icon</a></li>';
+	*/
+	
+	$logo .= '</ul></ul></li>';	
+	
+	// login form
+	if($login){
+		echo '<div id="sa_toolbar"><ul class="">'.$logo.'</ul>
+			<ul class="right">
+			<ul class="satb_nav">
+				<li id="satb_login" class="satb_menu">
+				<a id="satb_login_link" href="#">'.i18n_r('LOGIN').'</a>
+					<ul id="satb_login_menu">			
+						<form action="/getsimple_dev/admin/index.php?redirect='.$_SERVER['REQUEST_URI'].'" method="post">
+							<b>Username:</b><input type="text" id="userid" name="userid">
+							<b>Password:</b><input type="password" id="pwd" name="pwd">
+							<input class="submit" id="satb_login_submit" type="submit" name="submitted" value="Login">
+						</form>
+					</ul>
+				</li>
+			<li class="satb_menu tb_close"><a href="'.$SITEURL.'/admin/logout.php?toolbar&close" title="Remove Bar"><strong>&times;</strong></a></li>				
+			</ul>
+			</ul>
+		</div>';
+		satb_jsOutput();		
+		return;	
+	}
 	
 	$editpath = $SITEURL.'admin/edit.php';
 	
@@ -177,7 +251,7 @@ function sa_toolbar(){
 
 	// these core sidemenus go at bottom
 	$sm = sa_tb_addMenu($sm,'plugins','GET_PLUGINS_LINK','http://get-simple.info/extend');
-	$sm = sa_tb_addMenu($sm,'settings','TAB_LOGOUT','admin/logout.php'); // logout for convienence
+	$sm = sa_tb_addMenu($sm,'settings','TAB_LOGOUT','admin/logout.php?toolbar'); // logout for convienence
 
 	$logoutitem = $sm['settings'][count($sm['settings'])-1]; // logout is always last item
 	$profileitem = $sm['settings'][1];	
@@ -188,39 +262,13 @@ function sa_toolbar(){
 
 	// link target
 	$target = satb_is_frontend() ? '_blank' : '_self'; 
-	$gstarget = '_blank'; 
 	
 	// init master admin menu
 	$menu = '<li><ul class="satb_nav">
 	<li class="satb_menu"><a href="#">Admin &#9662;</a>
 	<ul>
 	';
-	
-	// logo	
-	$logo  = '<li><ul class="satb_nav"><li class="satb_menu satb_icon"><a class="satb_logo" title="GetSImple CMS ver. '.GSVERSION.'" href="#"><img src="'.$SATB['PLUGIN_PATH'].'assets/img/gsicon.png"></a><ul id="satb_logo_sub">';
-	$logo .= '<li class=""><a href="http://get-simple.info" target="'.$gstarget.'">GetSimple CMS</a></li>';
-	$logo .= '<li class=""><a href="http://get-simple.info/forum/" target="'.$gstarget.'">Forums<span class="iconright">&#9656;</span></a>';
-	$logo .= '<ul><li class=""><a href="http://get-simple.info/forum/search/new/" target="'.$gstarget.'">New Posts</a></li>';
-	$logo .= '</ul></li>';
-	$logo .= '<li class=""><a href="http://get-simple.info/extend/" target="'.$gstarget.'">Extend</a></li>';
-	$logo .= '<li class=""><a href="http://get-simple.info/wiki/" target="'.$gstarget.'">Wiki</a></li>';
-	$logo .= '<li class=""><a href="http://code.google.com/p/get-simple-cms" target="'.$gstarget.'">SVN</a></li>';
-	$logo .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$gstarget.'"><i class="cssicon info"></i>About SA_toolbar</a></li>';
-	
-	// icon test
-	/*	
-	$test = '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon info"></i>Info Icon</a></li>';
-	$test .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon help"></i>Help Icon</a></li>';
-	$test .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon success"></i>Success Icon</a></li>';
-	$test .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon success-alt"></i>Success Alt Icon</a></li>';
-	$test .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon alert"></i>Alert Icon</a></li>';
-	$test .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon warning"></i>Warning Icon</a></li>';
-	$test .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon denied"></i>Denied Icon</a></li>';
-	$test .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$target.'"><i class="cssicon ribbon"></i>Ribbon Icon</a></li>';
-	*/
-	
-	$logo .= '</ul></ul></li>';	
-	
+		
 	// DO HOOKS
 	$SATB_MENU_ADMIN = $sm; // assign to global
 	
@@ -249,7 +297,7 @@ function sa_toolbar(){
 	// welcome user
 	$sig  = '<ul class="satb_nav"><li class="satb_menu"><a href="#">'.i18n_r('WELCOME').', <strong>'.$USR.'</strong></a><ul>';
 	$sig .= '<li class=""><a href="'.$SITEURL.$profileitem['func'].'" target="'.$target.'">'.satb_cleanStr(satb_geti18n($profileitem['title'])).'</a></li>';
-	$sig .= '<li class=""><a href="'.$SITEURL.$logoutitem['func'].'" target="'.$target.'"><i class="cssicon alert"></i>'.satb_cleanStr(satb_geti18n($logoutitem['title'])).'</a></li>';
+	$sig .= '<li class=""><a href="'.$SITEURL.$logoutitem['func'].'"><i class="cssicon alert"></i>'.satb_cleanStr(satb_geti18n($logoutitem['title'])).'</a></li>';
 	$sig .= '</ul></li>';
 		
 	$tm = satb_update_tabs($tm); // handle any empty or new tabs
@@ -340,8 +388,12 @@ function sa_toolbar(){
 	}
 	echo '</div>';
 	
+	satb_jsOutput();
 	
-	?>
+}
+	
+function satb_jsOutput(){
+?>
 	
 	<script type="text/javascript">
 		$(document).ready(function() {
