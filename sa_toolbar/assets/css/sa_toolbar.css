@@ -32,11 +32,12 @@
 	white-space:normal;
 	width:auto;
 	z-index:auto;
-  color:white;
-  text-shadow:none;
+  	color:white;
+  	text-shadow:none;
 	-webkit-border-radius: 0;
 	-moz-border-radius: 0;
 	border-radius: 0;	
+	vertical-align:baseline;	
 }
 
 
