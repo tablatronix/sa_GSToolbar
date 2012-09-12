@@ -17,13 +17,12 @@
 /*
 * @Plugin Name: sa_toolbar
 * @Description: Admin toolbar
-* @Version: 0.1.6
+* @Version: 0.1.6.2
 * @Author: Shawn Alverson
 * @Author URI: http://tablatronix.com/getsimple-cms/sa-toolbar/
 *
 * @hook callouts: satb_toolbar_disp
 */
-
 
 $SATB = array();
 $SATB['PLUGIN_ID'] = "sa_toolbar";
@@ -43,7 +42,7 @@ define('SATB_DEBUG',$SATB['DEBUG']);
 # get correct id for plugin
 $thisfile=basename(__FILE__, ".php");			// Plugin File
 $satb_pname = 	  'SA Toolbar';    	    	//Plugin name
-$satb_pversion =	'0.1.6'; 		       	     	//Plugin version
+$satb_pversion =	'0.1.6.2'; 		       	     	//Plugin version
 $satb_pauthor = 	'Shawn Alverson';      	//Plugin author
 $satb_purl = 			$SATB['PLUGIN_URL'];		//author website
 $satb_pdesc =			'SA Toolbar';					 	//Plugin description
@@ -183,14 +182,14 @@ function sa_toolbar($login=null){
 				<li id="satb_login" class="satb_menu">
 				<a id="satb_login_link" href="#">'.i18n_r('LOGIN').'</a>
 					<ul id="satb_login_menu">			
-						<form action="/getsimple_dev/admin/index.php?redirect='.$_SERVER['REQUEST_URI'].'" method="post">
+						<form action="'.$SITEURL.'admin/index.php?redirect='.$_SERVER['REQUEST_URI'].'" method="post">
 							<b>Username:</b><input type="text" id="userid" name="userid">
 							<b>Password:</b><input type="password" id="pwd" name="pwd">
 							<input class="submit" id="satb_login_submit" type="submit" name="submitted" value="Login">
 						</form>
 					</ul>
 				</li>
-			<li class="satb_menu tb_close"><a href="'.$SITEURL.'/admin/logout.php?toolbar&close" title="Remove Bar"><strong>&times;</strong></a></li>				
+			<li class="satb_menu tb_close"><a href="'.$SITEURL.'admin/logout.php?toolbar&close" title="Remove Bar"><strong>&times;</strong></a></li>				
 			</ul>
 			</ul>
 		</div>';

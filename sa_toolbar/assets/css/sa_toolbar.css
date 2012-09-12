@@ -279,6 +279,11 @@ visibility:visible;
 	color:#555 !important;
 }
 
+#sa_toolbar input{
+	color:#000;
+	border:1px solid #DDD;
+}
+
 #sa_toolbar input.submit {
   font: bold 13px Helvetica, Arial, sans-serif;
   text-decoration: none;
