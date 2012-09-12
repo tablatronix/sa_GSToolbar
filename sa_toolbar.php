@@ -556,6 +556,8 @@ function sa_tb_executeheader(){ // assigns assets to queue or header
 
   $regstyle($PLUGIN_ID, $PLUGIN_PATH.'assets/css/sa_toolbar.css', '0.1', 'screen');
   $questyle($PLUGIN_ID,GSBOTH);   
+  
+	$quescript('jquery',GSBOTH);   
 }
 
 function SA_tb_register_style($handle, $src, $ver){echo '<link rel="stylesheet" href="'.$src.'" type="text/css" charset="utf-8" />'."\n";}
