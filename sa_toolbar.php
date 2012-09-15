@@ -35,7 +35,7 @@ $SATB['gsback'] = true;
 
 // DEBUGGING GLOBAL
 // ----------------------
-$SATB['DEBUG'] = true;
+$SATB['DEBUG'] = false;
 // ----------------------
 
 define('SATB_DEBUG',$SATB['DEBUG']);
@@ -147,7 +147,7 @@ function sa_toolbar($login=null){
 	
 	// todo : refactor this a bit, whew
 	
-  GLOBAL $SATB,$SITEURL,$LANG,$USR,$SATB_MENU_ADMIN,$SATB_MENU_STATIC;
+  GLOBAL $SATB,$SITEURL,$LANG,$USR,$EMAIL,$SATB_MENU_ADMIN,$SATB_MENU_STATIC;
 
 	$gstarget = '_blank'; 
 
@@ -288,7 +288,7 @@ function sa_toolbar($login=null){
 	$debugicon = '<li class="satb_icon" title="'.ucwords(satb_cleanStr(satb_geti18n('DEBUG_MODE'))).' ON"><img src="'.$SATB['PLUGIN_PATH'].'assets/img/sa_tb_debugmode.png"></li>';	
 	
 	// welcome user
-	$sig  = '<ul class="satb_nav"><li class="satb_menu"><a href="#">'.i18n_r('WELCOME').', <strong>'.$USR.'</strong></a><ul>';
+	$sig  = '<ul class="satb_nav"><li class="satb_menu"> <a href="#"><img src="'.satb_get_gravatar( $EMAIL, 20, 'mm', 'g', false).'" style="width:20px;height:20px;margin-top:4px;margin-right:8px;margin-left: 0;float:left;" />'.i18n_r('WELCOME').', <strong>'.$USR.'</strong></a><ul>';
 	$sig .= '<li class=""><a href="'.$SITEURL.$profileitem['func'].'" target="'.$target.'">'.satb_cleanStr(satb_geti18n($profileitem['title'])).'</a></li>';
 	$sig .= '<li class=""><a href="'.$SITEURL.$logoutitem['func'].'"><i class="cssicon alert"></i>'.satb_cleanStr(satb_geti18n($logoutitem['title'])).'</a></li>';
 	$sig .= '</ul></li>';
@@ -386,6 +386,32 @@ function sa_toolbar($login=null){
 	satb_jsOutput();
 	
 }
+
+/**
+ * Get either a Gravatar URL or complete image tag for a specified email address.
+ *
+ * @param string $email The email address
+ * @param string $s Size in pixels, defaults to 80px [ 1 - 2048 ]
+ * @param string $d Default imageset to use [ 404 | mm | identicon | monsterid | wavatar ]
+ * @param string $r Maximum rating (inclusive) [ g | pg | r | x ]
+ * @param boole $img True to return a complete IMG tag False for just the URL
+ * @param array $atts Optional, additional key/value attributes to include in the IMG tag
+ * @return String containing either just a URL or a complete image tag
+ * @source http://gravatar.com/site/implement/images/php/
+ */
+function satb_get_gravatar( $email, $s = 80, $d = 'mm', $r = 'g', $img = false, $atts = array() ) {
+	$url = 'http://www.gravatar.com/avatar/';
+	$url .= md5( strtolower( trim( $email ) ) );
+	$url .= "?s=$s&d=$d&r=$r";
+	if ( $img ) {
+		$url = '<img src="' . $url . '"';
+		foreach ( $atts as $key => $val )
+			$url .= ' ' . $key . '="' . $val . '"';
+		$url .= ' />';
+	}
+	return $url;
+}
+
 	
 function satb_jsOutput(){
 ?>
