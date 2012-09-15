@@ -3,7 +3,8 @@
 /*
 	revs:
 	
-	added login toolbar
+	Fix for font end cookie expiring in 1 day, bumped to 180 days
+	Added ability to modify top menu, see satb_hook_test()
 
 	todo:
 	
@@ -17,7 +18,7 @@
 /*
 * @Plugin Name: sa_toolbar
 * @Description: Admin toolbar
-* @Version: 0.1.6.2
+* @Version: 0.1.6.3
 * @Author: Shawn Alverson
 * @Author URI: http://tablatronix.com/getsimple-cms/sa-toolbar/
 *
@@ -34,7 +35,7 @@ $SATB['gsback'] = true;
 
 // DEBUGGING GLOBAL
 // ----------------------
-$SATB['DEBUG'] = false;
+$SATB['DEBUG'] = true;
 // ----------------------
 
 define('SATB_DEBUG',$SATB['DEBUG']);
@@ -42,7 +43,7 @@ define('SATB_DEBUG',$SATB['DEBUG']);
 # get correct id for plugin
 $thisfile=basename(__FILE__, ".php");			// Plugin File
 $satb_pname = 	  'SA Toolbar';    	    	//Plugin name
-$satb_pversion =	'0.1.6.2'; 		       	     	//Plugin version
+$satb_pversion =	'0.1.6.3'; 		   	     	//Plugin version
 $satb_pauthor = 	'Shawn Alverson';      	//Plugin author
 $satb_purl = 			$SATB['PLUGIN_URL'];		//author website
 $satb_pdesc =			'SA Toolbar';					 	//Plugin description
@@ -272,7 +273,7 @@ function sa_toolbar($login=null){
 	// DO HOOKS
 	$SATB_MENU_ADMIN = $sm; // assign to global
 	
-	$SATB_MENU_STATIC['new'] = array('title'=>satb_cleanStr(satb_geti18n('NEW_PAGE')),'url'=>$editpath);	
+	$SATB_MENU_STATIC['new'] = array('title'=>'+ '.satb_cleanStr(satb_geti18n('NEW_PAGE')),'url'=>$editpath);	
 	if(function_exists('return_page_slug')){	
 		$SATB_MENU_STATIC['edit'] = array('title'=>satb_cleanStr(satb_geti18n('EDIT')),'url'=>$editpath.'?id='.return_page_slug());	
 	}
@@ -281,14 +282,6 @@ function sa_toolbar($login=null){
 	
 	$sm = $SATB_MENU_ADMIN; // set back from global
 		
-	// edit button
-	$edit = '';
-	if(function_exists('return_page_slug')){
-		$edit = '<li class="satb_menu"><a href="'.$SATB_MENU_STATIC['edit']['url'].'" target="'.$target.'">'.$SATB_MENU_STATIC['edit']['title'].'</a></li>';
-	}
-	
-	$new	= '<li class="satb_menu"><a href="'.$SATB_MENU_STATIC['new']['url'].'" target="'.$target.'">+ '.$SATB_MENU_STATIC['new']['title'].'</a></li>';
-	
 	$separator = '<li class="separator"></li>';
 	
 	// debug mode indicator
@@ -372,12 +365,14 @@ function sa_toolbar($login=null){
 	echo $logo;
 	echo $menu;
 	echo $separator;
-	echo $new;
-	echo $separator;
-	if(isset($pageslug)) echo $edit;
-	echo $separator;	
-	echo '</ul>';
+	
+	// create top menu
+	foreach($SATB_MENU_STATIC as $key=>$menutop){
+		echo '<li class="satb_menu top_'.$key.'"><a href="'.$menutop['url'].'" target="'.$target.'">'.$menutop['title'].'</a></li>';		
+		echo $separator;	
+	}
 
+	echo '</ul>';
 	echo '<ul class="right">'.$sig.'</ul>';
 	
 	// debug indicator logic
@@ -614,10 +609,12 @@ function satb_hook_test(){
 	// * menu items contain a 'file' attribute which can help identify a specific plugins submenus
 	
 	// To change the edit button
-	$SATB_MENU_STATIC['edit'] = array('title'=> 'Custom Edit','url'=>'javascript:alert(\'javacript example\');');
+	# $SATB_MENU_STATIC['edit'] = array('title'=> 'Custom Edit','url'=>'javascript:alert(\'javacript example\');');
 	
 	// To change the new page button
-	$SATB_MENU_STATIC['new'] = array('title'=> 'Custom New','url'=>'admin/load.php?id=blog&create_post');
+	# $SATB_MENU_STATIC['new'] = array('title'=> 'Custom New','url'=>'admin/load.php?id=blog&create_post');
+	$SATB_MENU_STATIC['blog'] = array('title'=> '+ New Blog Post','url'=>'admin/load.php?id=blog&create_post');
+	$SATB_MENU_STATIC['special'] = array('title'=> '+ New Special Page','url'=>'admin/load.php?id=i18n_specialpages&create');
 	
 	// There is no way to add new top buttons yet, but its in the works.
 	
