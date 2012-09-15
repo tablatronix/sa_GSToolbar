@@ -18,7 +18,7 @@
 /*
 * @Plugin Name: sa_toolbar
 * @Description: Admin toolbar
-* @Version: 0.1.6.5
+* @Version: 0.1.6.6
 * @Author: Shawn Alverson
 * @Author URI: http://tablatronix.com/getsimple-cms/sa-toolbar/
 *
@@ -43,7 +43,7 @@ define('SATB_DEBUG',$SATB['DEBUG']);
 # get correct id for plugin
 $thisfile=basename(__FILE__, ".php");			// Plugin File
 $satb_pname = 	  'SA Toolbar';    	    	//Plugin name
-$satb_pversion =	'0.1.6.5'; 		   	     	//Plugin version
+$satb_pversion =	'0.1.6.6'; 		   	     	//Plugin version
 $satb_pauthor = 	'Shawn Alverson';      	//Plugin author
 $satb_purl = 			$SATB['PLUGIN_URL'];		//author website
 $satb_pdesc =			'SA Toolbar';					 	//Plugin description
