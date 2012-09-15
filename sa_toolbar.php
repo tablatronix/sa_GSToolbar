@@ -114,7 +114,7 @@ function satb_checkTbCookie(){
 
 function satb_setTbCookie(){
 	// set cookie to 180 days
-	setcookie('GS_ADMIN_TOOLBAR', 1, 15552000,'/');
+	setcookie('GS_ADMIN_TOOLBAR', 1, time() + 15552000,'/');
 }
 
 function satb_clearTbCookie(){
