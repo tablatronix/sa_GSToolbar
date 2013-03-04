@@ -148,7 +148,7 @@ function sa_toolbar($login=null){
 	
   GLOBAL $SATB,$SITEURL,$LANG,$USR,$datau,$SATB_MENU_ADMIN,$SATB_MENU_STATIC;
 
-	$EMAIL 		= $datau->EMAIL;
+	$EMAIL = isset($datau) ? $datau->EMAIL : '';
 	
 	$gstarget = '_blank'; 
 
