@@ -529,9 +529,9 @@ function satb_update_tabs($tm){
 }
 
 function sa_tb_get_PluginTabs(){
-    global $plugins;    
+  global $plugins;    
   $sa_plugins = $plugins;
-    $plugintabs = array();
+  $plugintabs = array();
     
   foreach ($sa_plugins as $hook)    {
         if($hook['hook'] == 'nav-tab' and (isset($hook['args']) and isset($hook['args'][1]) and isset($hook['args'][2])) ){
@@ -543,7 +543,7 @@ function sa_tb_get_PluginTabs(){
 }
 
 function sa_tb_get_PluginMenus($pluginsidemenus = array(),$page = null){
-    global $plugins;
+  global $plugins;
   $sa_plugins = $plugins;
 
     # satb_debuglog($sa_plugins);
@@ -570,9 +570,9 @@ function sa_tb_executeheader(){ // assigns assets to queue or header
 
   # debugLog("sa_dev_executeheader");
 
-    $PLUGIN_ID = $SATB['PLUGIN_ID'];
-    $PLUGIN_PATH = $SATB['PLUGIN_PATH'];
-    $owner = $SATB['owner'];
+  $PLUGIN_ID   = $SATB['PLUGIN_ID'];
+  $PLUGIN_PATH = $SATB['PLUGIN_PATH'];
+  $owner       = $SATB['owner'];
   
   $regscript = $owner."register_script";
   $regstyle  = $owner."register_style";
@@ -582,7 +582,7 @@ function sa_tb_executeheader(){ // assigns assets to queue or header
   $regstyle($PLUGIN_ID, $PLUGIN_PATH.'assets/css/sa_toolbar.css', '0.1', 'screen');
   $questyle($PLUGIN_ID,GSBOTH);   
   
-    $quescript('jquery',GSBOTH);   
+ $quescript('jquery',GSBOTH);   
 }
 
 function SA_tb_register_style($handle, $src, $ver){echo '<link rel="stylesheet" href="'.$src.'" type="text/css" charset="utf-8" />'."\n";}
