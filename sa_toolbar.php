@@ -292,7 +292,8 @@ function sa_toolbar($login=null){
     $debugicon = '<li class="satb_icon" title="'.ucwords(satb_cleanStr(satb_geti18n('DEBUG_MODE'))).' ON"><img src="'.$SATB['PLUGIN_PATH'].'assets/img/sa_tb_debugmode.png"></li>'; 
     
     // welcome user
-    $sig  = '<ul class="satb_nav"><li class="satb_menu"> <a href="#"><img src="'.satb_get_gravatar( $EMAIL, 20, 'mm', 'g', false).'" style="width:20px;height:20px;margin-top:4px;margin-right:8px;margin-left: 0;float:left;" />'.i18n_r('WELCOME').', <strong>'.$USR.'</strong></a><ul>';
+    $sig  = '<ul class="satb_nav"><a id="avatar" href="http://gravatar.com/emails/"><li class="satb_menu"><img src="'.satb_get_gravatar( $EMAIL, 20, 'mm', 'g', false).'" style="width:20px;height:20px;" /></a>';
+    $sig .= '<a class="welcome" href="#">'.i18n_r('WELCOME').', <strong>'.$USR.'</strong></a><ul>';
     $sig .= '<li class=""><a href="'.$profileitem['func'].'" target="'.$target.'">'.satb_cleanStr(satb_geti18n($profileitem['title'])).'</a></li>';
     $sig .= '<li class=""><a href="'.$logoutitem['func'].'"><i class="cssicon alert"></i>'.satb_cleanStr(satb_geti18n($logoutitem['title'])).'</a></li>';
     $sig .= '</ul></li>';

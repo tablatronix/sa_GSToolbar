@@ -120,6 +120,19 @@
 	text-shadow: #444 0 -1px 0;		
 }
 
+#sa_toolbar li.satb_menu a.welcome{
+	padding-left: 30px;
+	cursor: default;
+}
+
+#sa_toolbar li.satb_menu #avatar {
+	display:inline;
+	border:none;
+	margin:4px 0 0 4px;
+	padding:0;
+	float:left;
+}
+
 #sa_toolbar li.satb_menu:hover {
 	background-color:#222;
 	font-family:arial;
@@ -142,6 +155,7 @@
 
 #sa_toolbar li.satb_icon .satb_logo{
 	padding:0;
+	cursor: default;	
 }
 
 /* main level link */
@@ -193,7 +207,11 @@ visibility:visible;
 	/* menu delays */
 	visibility:hidden;
   opacity:0;
-  -webkit-transition:visibility 0s ease-out 0.3s,opacity 0.2s ease-out;	
+  /* fade out opacity, then visibility, to allow us to jump back on menu if we mousoff of it for several ms */
+  -webkit-transition:visibility 0s ease-out 0.3s,opacity 0.3s ease-out;	
+     -moz-transition:visibility 0s ease-out 0.3s,opacity 0.3s ease-out;	
+       -o-transition:visibility 0s ease-out 0.3s,opacity 0.3s ease-out;	
+          transition:visibility 0s ease-out 0.3s,opacity 0.3s ease-out;	
 }
 /* dropdown */
 #sa_toolbar .satb_nav li:hover > ul {
@@ -201,8 +219,11 @@ visibility:visible;
 	/* display:block; */
 	/* menu delays, transitions are ignored if we touch display at all */
   visibility:visible;
-  opacity:1;
-  -webkit-transition:visibility 0s ease-out 0s,opacity 0s ease-out;
+  opacity:.96;
+  -webkit-transition:visibility 0s ease-out 0s,opacity 0s ease-out;	
+     -moz-transition:visibility 0s ease-out 0s,opacity 0s ease-out;	
+       -o-transition:visibility 0s ease-out 0s,opacity 0s ease-out;	
+          transition:visibility 0s ease-out 0s,opacity 0s ease-out;	  
 }
 #sa_toolbar .satb_nav ul li {
 	float: none;
@@ -608,6 +629,11 @@ visibility:visible;
 #sa_toolbar .info,
 #sa_toolbar .help {
 	font-family: Cambria, Georgia, sans-serif !important; 	
+}
+
+#sa_toolbar #avatar{
+	display:inline;	
+	height:auto;
 }
 
 /* debugging show menu*/
