@@ -43,7 +43,7 @@ define('SATB_DEBUG',$SATB['DEBUG']);
 # get correct id for plugin
 $thisfile      = basename(__FILE__, ".php"); // Plugin File
 $satb_pname    = 'SA Toolbar';               //Plugin name
-$satb_pversion = '0.1.6.6';                  //Plugin version
+$satb_pversion = '0.1.7';                  //Plugin version
 $satb_pauthor  = 'Shawn Alverson';           //Plugin author
 $satb_purl     = $SATB['PLUGIN_URL'];        //author website
 $satb_pdesc    = 'SA Toolbar';               //Plugin description
