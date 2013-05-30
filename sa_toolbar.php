@@ -456,7 +456,7 @@ function satb_jsOutput(){
 }
 
 function satb_cleanStr($str){
-    return ucwords(strip_tags($str));
+    return strip_tags($str);
 }
 
 function satb_automerge($array){
