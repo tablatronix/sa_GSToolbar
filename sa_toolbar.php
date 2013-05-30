@@ -163,7 +163,7 @@ function sa_toolbar($login=null){
     $logo .= '</ul></li>';
     $logo .= '<li class=""><a href="http://get-simple.info/extend/" target="'.$gstarget.'">Extend</a></li>';
     $logo .= '<li class=""><a href="http://get-simple.info/wiki/" target="'.$gstarget.'">Wiki</a></li>';
-    $logo .= '<li class=""><a href="http://code.google.com/p/get-simple-cms" target="'.$gstarget.'">SVN</a></li>';
+    $logo .= '<li class=""><a href="https://github.com/GetSimpleCMS/GetSimpleCMS" target="'.$gstarget.'">SVN</a></li>';
     $logo .= '<li class=""><a class="" href="http://get-simple.info/forum/topic/4141/sa-gs-admin-toolbar/" target="'.$gstarget.'"><i class="cssicon info"></i>About SA_toolbar</a></li>';
 
     // icon test
