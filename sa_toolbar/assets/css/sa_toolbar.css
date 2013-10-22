@@ -636,6 +636,14 @@ visibility:visible;
 	height:auto;
 }
 
+body.gs-toolbar #sidebar.scroll-to-fixed-fixed{
+	top:44px !important;
+}
+
+body.gs-toolbar .CodeMirror .fullscreen{
+	z-index:10000 !important;
+}
+
 /* debugging show menu*/
 /*
 #sa_toolbar #satb_logo_sub {
