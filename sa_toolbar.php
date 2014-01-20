@@ -43,7 +43,7 @@ define('SATB_DEBUG',$SATB['DEBUG']);
 # get correct id for plugin
 $thisfile      = basename(__FILE__, ".php"); // Plugin File
 $satb_pname    = 'SA Toolbar';               //Plugin name
-$satb_pversion = '0.1.7';                    //Plugin version
+$satb_pversion = '1.0';                      //Plugin version
 $satb_pauthor  = 'Shawn Alverson';           //Plugin author
 $satb_purl     = $SATB['PLUGIN_URL'];        //author website
 $satb_pdesc    = 'SA Toolbar';               //Plugin description
@@ -74,7 +74,7 @@ if(sa_tb_user_is_admin()){
     
     add_action('theme-footer', 'sa_toolbar');
     add_action('index-pretemplate', 'sa_init_i18n');
-    if($SATB['gsback'] = true){
+    if($SATB['gsback'] == true){
         add_action('footer', 'sa_toolbar');
         add_action('admin-pre-header', 'sa_init_i18n');
     }   
