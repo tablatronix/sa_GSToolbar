@@ -128,7 +128,7 @@
 #sa_toolbar li.satb_menu #avatar {
 	display:inline;
 	border:none;
-	margin:4px 0 0 4px;
+	margin:4px 0 -4px 4px;
 	padding:0;
 	float:left;
 }
