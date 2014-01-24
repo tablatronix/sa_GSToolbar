@@ -424,6 +424,10 @@ function satb_jsOutput(){
     <script type="text/javascript">
         $(document).ready(function() {
 
+            $.fn.csspixels = function(property) {
+                    return parseInt(this.css(property).slice(0,-2));
+            };   
+
             $('body').append($('#sa_toolbar')); // prevents inheriting styles from #footer
             $('ul#pill').hide(); // hide backend header
             
@@ -441,14 +445,9 @@ function satb_jsOutput(){
                 // assign body z-index in case its auto
                 // console.log($('body').css('z-index'));
                 // $('body').css('z-index', 9998);  
-            }
-
+            }   
+        
         });
-        
-        $.fn.csspixels = function(property) {
-                return parseInt(this.css(property).slice(0,-2));
-        };      
-        
     </script>
 
 <?php
