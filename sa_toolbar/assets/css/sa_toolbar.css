@@ -640,7 +640,7 @@ body.gs-toolbar #sidebar.scroll-to-fixed-fixed{
 	top:44px !important;
 }
 
-body.gs-toolbar .CodeMirror .fullscreen{
+body.gs-toolbar .CodeMirror .fullscreen, body.gs-toolbar .CodeMirror-fullscreen{
 	z-index:10000 !important;
 }
 
