@@ -131,6 +131,8 @@
 	margin:4px 0 -4px 4px;
 	padding:0;
 	float:left;
+	width:20px;
+	height:20px;
 }
 
 #sa_toolbar li.satb_menu:hover {
@@ -640,7 +642,7 @@ body.gs-toolbar #sidebar.scroll-to-fixed-fixed{
 	top:44px !important;
 }
 
-body.gs-toolbar .CodeMirror .fullscreen, body.gs-toolbar .CodeMirror-fullscreen{
+body.gs-toolbar .CodeMirror .fullscreen, body.gs-toolbar .CodeMirrorfullscreen{
 	z-index:10000 !important;
 }
 
