@@ -646,6 +646,21 @@ body.gs-toolbar .CodeMirror .fullscreen, body.gs-toolbar .CodeMirrorfullscreen{
 	z-index:10000 !important;
 }
 
+/* absolute toolbar overrides */
+.cke_inner.cke_maximized{
+	padding-top:40px;
+}
+.CodeMirror-fullscreen{
+	top:29px;
+	padding-top:15px;
+}
+.CodeMirror-fullscreen .overlay_but_fullscrn {
+	top: 15px;
+}
+.fullscreen .notify{
+	top:37px;
+}
+
 /* debugging show menu*/
 /*
 #sa_toolbar #satb_logo_sub {
